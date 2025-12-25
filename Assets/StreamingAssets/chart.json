@@ -1,0 +1,22 @@
+{
+  "musicFile": "song.mp3",
+  "offsetSec": 0.0,
+  "notes": [
+    {
+      "timeSec": 1.000,
+      "lane": "Left"
+    },
+    {
+      "timeSec": 1.250,
+      "lane": "Down"
+    },
+    {
+      "timeSec": 1.500,
+      "lane": "Up"
+    },
+    {
+      "timeSec": 1.750,
+      "lane": "Right"
+    }
+  ]
+}
