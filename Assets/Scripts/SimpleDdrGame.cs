@@ -18,11 +18,10 @@ public sealed class SimpleDdrGame : MonoBehaviour
     [SerializeField] NoteView notePrefab;
     [SerializeField] Transform spawnY;
     [SerializeField] Transform judgeLineY;
-    [SerializeField] Transform laneLeftX;
-    [SerializeField] Transform laneDownX;
-    [SerializeField] Transform laneUpX;
-    [SerializeField] Transform laneRightX;
     [SerializeField] float travelTimeSec = 1.5f;
+
+    [Header("Lane X positions (Left, Down, Up, Right)")]
+    [SerializeField] float[] laneXs = { -3f, -1f, 1f, 3f };
 
     [Header("Judgement Windows (sec)")]
     [SerializeField] float perfect = 0.03f;
@@ -238,14 +237,13 @@ public sealed class SimpleDdrGame : MonoBehaviour
         }
     }
 
-    float GetLaneX(Lane lane) => lane switch
+    float GetLaneX(Lane lane)
     {
-        Lane.Left => laneLeftX.position.x,
-        Lane.Down => laneDownX.position.x,
-        Lane.Up => laneUpX.position.x,
-        Lane.Right => laneRightX.position.x,
-        _ => 0
-    };
+        var i = (int)lane;
+        if (laneXs == null || laneXs.Length < 4) return 0f;
+        if ((uint)i >= (uint)laneXs.Length) return 0f;
+        return laneXs[i];
+    }
 
     // ★ 書き出し用（JsonUtility向け）
     [Serializable]
