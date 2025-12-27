@@ -32,7 +32,9 @@ public sealed class SimpleDdrGame : MonoBehaviour
     [Header("Recording")]
     [SerializeField] bool enableRecording = true;
     [SerializeField] string recordedFileName = "chart_recorded.json";
-    [SerializeField] float recordQuantizeSec = 0.0f; // 0なら量子化なし。例: 0.01 で10ms刻み
+
+    [Tooltip("録画を小節内で何分割するか。DDRなら16が基本。")]
+    [SerializeField] int recordSubdiv = 16;
 
     [Header("Receptor Effects (fixed lanes)")]
     [SerializeField] ReceptorHitEffect leftFx;
@@ -67,7 +69,7 @@ public sealed class SimpleDdrGame : MonoBehaviour
 
         nextSpawnIndex = 0;
 
-        Debug.Log($"Loaded notes: {chart.Notes.Count}, offset: {chart.OffsetSec:0.###}");
+        Debug.Log($"Loaded notes: {chart.Notes.Count}, offset: {chart.OffsetSec:0.###}, bpm: {chart.Bpm:0.###}");
     }
 
     void Update()
@@ -84,7 +86,7 @@ public sealed class SimpleDdrGame : MonoBehaviour
     }
 
     double GetSongTimeSec()
-        => (AudioSettings.dspTime - dspStartTime) + chart.OffsetSec;
+    => (AudioSettings.dspTime - dspStartTime);
 
     void HandleRecordingHotkeys()
     {
@@ -103,10 +105,9 @@ public sealed class SimpleDdrGame : MonoBehaviour
 
         if (kb.sKey.wasPressedThisFrame)
         {
-            SaveRecordedChart();
+            SaveRecordedChartJson();
         }
 
-        // 録画中にBで録画ノーツだけ全消し（保険）
         if (kb.bKey.wasPressedThisFrame)
         {
             recordedNotes.Clear();
@@ -114,33 +115,80 @@ public sealed class SimpleDdrGame : MonoBehaviour
         }
     }
 
-    void SaveRecordedChart()
+    void SaveRecordedChartJson()
     {
         if (!enableRecording) return;
 
-        // StreamingAssets は Editor/PC実行では書けるが、
-        // 一部プラットフォームやビルド後は書けないことがある点に注意。
-        Directory.CreateDirectory(Application.streamingAssetsPath);
+        if (recordSubdiv <= 0) recordSubdiv = 16;
+        if (recordSubdiv % 4 != 0)
+        {
+            Debug.LogWarning($"recordSubdiv should be multiple of 4. current={recordSubdiv}. Forced to 16.");
+            recordSubdiv = 16;
+        }
 
-        var outJson = new ChartJsonOut
+        // 4/4固定（1小節=4拍）
+        var secPerBeat = 60.0 / chart.Bpm;
+        var secPerMeasure = secPerBeat * 4.0;
+
+        // measureIndex -> rows
+        var measures = new Dictionary<int, string[]>();
+
+        foreach (var n in recordedNotes)
+        {
+            var rawTime = n.TimeSec;
+
+            // measure/row を計算
+            var measureIndex = (int)Math.Floor(rawTime / secPerMeasure);
+            var inMeasure = rawTime - measureIndex * secPerMeasure;
+            var row = (int)Math.Round((inMeasure / secPerMeasure) * recordSubdiv);
+
+            // 端の丸め（row==recordSubdiv になったら次小節の0へ）
+            if (row >= recordSubdiv) { row = 0; measureIndex += 1; }
+            if (row < 0) { row = 0; }
+
+            if (!measures.TryGetValue(measureIndex, out var rows))
+            {
+                rows = Enumerable.Repeat("0000", recordSubdiv).ToArray();
+                measures[measureIndex] = rows;
+            }
+
+            // row の lane を 1 にする（同時押しは OR）
+            var chars = rows[row].ToCharArray();
+            chars[(int)n.Lane] = '1';
+            rows[row] = new string(chars);
+        }
+
+        // 0..maxMeasure で欠けを埋めて配列化
+        var maxM = measures.Count == 0 ? 0 : measures.Keys.Max();
+        var outMeasures = new ChartJson.Measure[maxM + 1];
+
+        for (int m = 0; m <= maxM; m++)
+        {
+            if (!measures.TryGetValue(m, out var rows))
+                rows = Enumerable.Repeat("0000", recordSubdiv).ToArray();
+
+            outMeasures[m] = new ChartJson.Measure
+            {
+                subdiv = recordSubdiv,
+                rows = rows
+            };
+        }
+
+        var outJson = new ChartJson
         {
             musicFile = chart.MusicFile,
-            offsetSec = (float)chart.OffsetSec,
-            notes = recordedNotes
-                .OrderBy(n => n.TimeSec)
-                .Select(n => new NoteJsonOut
-                {
-                    timeSec = (float)n.TimeSec,
-                    lane = n.Lane.ToString()
-                })
-                .ToArray()
+            bpm = chart.Bpm,
+            offsetSec = chart.OffsetSec,
+            measures = outMeasures
         };
+
+        Directory.CreateDirectory(Application.streamingAssetsPath);
 
         var json = JsonUtility.ToJson(outJson, prettyPrint: true) + "\n";
         var path = Path.Combine(Application.streamingAssetsPath, recordedFileName);
         File.WriteAllText(path, json);
 
-        Debug.Log($"Saved recorded chart: {path} (notes={recordedNotes.Count})");
+        Debug.Log($"Saved recorded chart: {path} (notes={recordedNotes.Count}, subdiv={recordSubdiv})");
     }
 
     void SpawnNotes(double songTime)
@@ -192,9 +240,8 @@ public sealed class SimpleDdrGame : MonoBehaviour
         // 録画：押した瞬間にノーツを記録（判定より先にやる）
         if (enableRecording && isRecording)
         {
-            var t = Quantize(songTime, recordQuantizeSec);
-            recordedNotes.Add(new NoteEvent(t, lane));
-            Debug.Log($"REC {lane} @ {t:0.000}");
+            recordedNotes.Add(new NoteEvent(songTime, lane));
+            Debug.Log($"REC {lane} @ {songTime:0.000}");
         }
 
         var list = active[lane];
@@ -238,12 +285,6 @@ public sealed class SimpleDdrGame : MonoBehaviour
         }
     }
 
-    static double Quantize(double timeSec, float stepSec)
-    {
-        if (stepSec <= 0) return timeSec;
-        return Math.Round(timeSec / stepSec) * stepSec;
-    }
-
     void CleanupMissed(double songTime)
     {
         foreach (var lane in active.Keys.ToArray())
@@ -277,20 +318,4 @@ public sealed class SimpleDdrGame : MonoBehaviour
         Lane.Right => rightFx,
         _ => throw new InvalidDataException($"Invalid lane: {lane}"),
     };
-
-    // ★ 書き出し用（JsonUtility向け）
-    [Serializable]
-    private class ChartJsonOut
-    {
-        public string musicFile;
-        public float offsetSec;
-        public NoteJsonOut[] notes;
-    }
-
-    [Serializable]
-    private class NoteJsonOut
-    {
-        public float timeSec;
-        public string lane;
-    }
 }
