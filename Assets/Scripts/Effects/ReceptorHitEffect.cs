@@ -6,7 +6,6 @@ public sealed class ReceptorHitEffect : MonoBehaviour
 {
     [Header("Flash")]
     [SerializeField] Color flashColor = new(1f, 0.95f, 0.4f, 1f);
-    [SerializeField] float flashDuration = 0.07f;
 
     [Header("Punch Scale")]
     [SerializeField] float punchScale = 1.12f;
