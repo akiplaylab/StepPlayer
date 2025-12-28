@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -59,11 +60,18 @@ public sealed class SimpleDdrGame : MonoBehaviour
     bool isRecording;
     readonly List<NoteEvent> recordedNotes = new();
 
-    void Start()
+    IEnumerator Start()
     {
         chart = Chart.LoadFromStreamingAssets(chartFileName);
 
         audioSource.clip = musicClip;
+
+        if (!musicClip.preloadAudioData)
+            musicClip.LoadAudioData();
+
+        while (musicClip.loadState == AudioDataLoadState.Loading)
+            yield return null;
+
         dspStartTime = AudioSettings.dspTime + 0.2;
         audioSource.PlayScheduled(dspStartTime);
 
@@ -74,6 +82,9 @@ public sealed class SimpleDdrGame : MonoBehaviour
 
     void Update()
     {
+        if (AudioSettings.dspTime < dspStartTime)
+            return;
+
         var songTime = GetSongTimeSec();
 
         SpawnNotes(songTime);
@@ -86,7 +97,7 @@ public sealed class SimpleDdrGame : MonoBehaviour
     }
 
     double GetSongTimeSec()
-    => (AudioSettings.dspTime - dspStartTime);
+    => (AudioSettings.dspTime - dspStartTime) - chart.OffsetSec;
 
     void HandleRecordingHotkeys()
     {
