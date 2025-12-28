@@ -63,12 +63,25 @@ public sealed class Chart
                         + (m * secPerMeasure)
                         + ((double)r / subdiv) * secPerMeasure;
 
-                    notes.Add(new NoteEvent(timeSec, (Lane)laneIndex));
+                    var division = DivisionFromRow(r);
+
+                    notes.Add(new NoteEvent(
+                        timeSec,
+                        (Lane)laneIndex,
+                        division
+                    ));
                 }
             }
         }
 
         var ordered = notes.OrderBy(n => n.TimeSec).ToList();
         return new Chart(raw.musicFile, raw.bpm, raw.offsetSec, ordered);
+    }
+
+    static NoteDivision DivisionFromRow(int row)
+    {
+        if (row % 4 == 0) return NoteDivision.Quarter;
+        if (row % 2 == 0) return NoteDivision.Eighth;
+        return NoteDivision.Sixteenth;
     }
 }

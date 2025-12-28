@@ -2,9 +2,12 @@ public readonly struct NoteEvent
 {
     public double TimeSec { get; }
     public Lane Lane { get; }
-    public NoteEvent(double timeSec, Lane lane)
+    public NoteDivision Division { get; }
+
+    public NoteEvent(double timeSec, Lane lane, NoteDivision division)
     {
         TimeSec = timeSec;
         Lane = lane;
+        Division = division;
     }
 }

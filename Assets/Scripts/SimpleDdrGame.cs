@@ -211,7 +211,7 @@ public sealed class SimpleDdrGame : MonoBehaviour
             if (songTime < spawnTime) break;
 
             var view = Instantiate(notePrefab, transform);
-            view.Init(note.Lane, note.TimeSec);
+            view.Init(note.Lane, note.TimeSec, note.Division);
             view.transform.position = new Vector3(GetLaneX(note.Lane), spawnY.position.y, 0);
 
             active[note.Lane].AddLast(view);
@@ -251,7 +251,12 @@ public sealed class SimpleDdrGame : MonoBehaviour
         // 録画：押した瞬間にノーツを記録（判定より先にやる）
         if (enableRecording && isRecording)
         {
-            recordedNotes.Add(new NoteEvent(songTime, lane));
+            recordedNotes.Add(new NoteEvent(
+                songTime,
+                lane,
+                NoteDivision.Quarter   // 録画中は仮でOK
+            ));
+
             Debug.Log($"REC {lane} @ {songTime:0.000}");
         }
 
