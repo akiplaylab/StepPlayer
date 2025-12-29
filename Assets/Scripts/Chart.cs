@@ -9,9 +9,9 @@ public sealed class Chart
     public string MusicFile { get; }
     public byte Bpm { get; }
     public float OffsetSec { get; }
-    public IReadOnlyList<NoteEvent> Notes { get; }
+    public IReadOnlyList<Note> Notes { get; }
 
-    public Chart(string musicFile, byte bpm, float offsetSec, IReadOnlyList<NoteEvent> notes)
+    public Chart(string musicFile, byte bpm, float offsetSec, IReadOnlyList<Note> notes)
     {
         if (bpm <= 0) throw new ArgumentOutOfRangeException(nameof(bpm), "bpm must be > 0");
 
@@ -35,7 +35,7 @@ public sealed class Chart
         var secPerBeat = 60.0 / raw.bpm;
         var secPerMeasure = secPerBeat * 4.0;
 
-        var notes = new List<NoteEvent>(1024);
+        var notes = new List<Note>(1024);
 
         for (int m = 0; m < raw.measures.Length; m++)
         {
@@ -64,7 +64,7 @@ public sealed class Chart
 
                     var division = DivisionFromRow(r);
 
-                    notes.Add(new NoteEvent(
+                    notes.Add(new Note(
                         timeSec,
                         (Lane)laneIndex,
                         division

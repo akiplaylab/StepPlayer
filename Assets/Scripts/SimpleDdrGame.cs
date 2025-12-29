@@ -58,7 +58,7 @@ public sealed class SimpleDdrGame : MonoBehaviour
     };
 
     bool isRecording;
-    readonly List<NoteEvent> recordedNotes = new();
+    readonly List<Note> recordedNotes = new();
 
     IEnumerator Start()
     {
@@ -251,7 +251,7 @@ public sealed class SimpleDdrGame : MonoBehaviour
         // 録画：押した瞬間にノーツを記録（判定より先にやる）
         if (enableRecording && isRecording)
         {
-            recordedNotes.Add(new NoteEvent(
+            recordedNotes.Add(new Note(
                 songTime,
                 lane,
                 NoteDivision.Quarter   // 録画中は仮でOK
