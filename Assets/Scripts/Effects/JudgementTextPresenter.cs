@@ -5,6 +5,7 @@ using UnityEngine;
 public enum Judgement
 {
     None,
+	Marvelous, // ★追加
     Perfect,
     Great,
     Good,
@@ -15,25 +16,31 @@ public enum Judgement
 public sealed class JudgementTextPresenter : MonoBehaviour
 {
     [Header("Text")]
+	[SerializeField] string marvelousText = "MARVELOUS!!";
     [SerializeField] string perfectText = "PERFECT!";
     [SerializeField] string greatText = "GREAT!";
     [SerializeField] string goodText = "GOOD";
     [SerializeField] string badText = "BAD";
 
     [Header("Colors (initial)")]
+    [SerializeField] Color marvelousColor = new Color(0.98f, 0.94f, 0.76f);
     [SerializeField] Color perfectColor = Color.yellow;
     [SerializeField] Color greatColor = Color.green;
     [SerializeField] Color goodColor = Color.cyan;
     [SerializeField] Color badColor = Color.red;
 
     [Header("Punch Scale")]
-    [Tooltip("Perfect �̍ő�g�嗦")]
+	
+	[Tooltip("Marvelous の最大拡大率")]
+	[SerializeField] float marvelousPunchScale = 1.35f;
+	
+    [Tooltip("Perfect の最大拡大率")]
     [SerializeField] float perfectPunchScale = 1.25f;
 
-    [Tooltip("Great �̍ő�g�嗦")]
+    [Tooltip("Great の最大拡大率")]
     [SerializeField] float greatPunchScale = 1.15f;
 
-    [Tooltip("Good/Bad �̓p���`���Ȃ�")]
+    [Tooltip("Good/Bad はパンチしない")]
     [SerializeField] float normalScale = 1.0f;
 
     [Header("Timing")]
@@ -72,6 +79,7 @@ public sealed class JudgementTextPresenter : MonoBehaviour
         // set content
         (string s, Color c, float targetScale) = j switch
         {
+			Judgement.Marvelous => (marvelousText, marvelousColor, marvelousPunchScale),
             Judgement.Perfect => (perfectText, perfectColor, perfectPunchScale),
             Judgement.Great => (greatText, greatColor, greatPunchScale),
             Judgement.Good => (goodText, goodColor, normalScale),
