@@ -46,6 +46,7 @@ public sealed class Game : MonoBehaviour
 
     Chart chart;
     ChartRecorder recorder;
+    NoteViewPool notePool;
     double dspStartTime;
     int nextSpawnIndex;
 
@@ -56,6 +57,11 @@ public sealed class Game : MonoBehaviour
         [Lane.Up] = new(),
         [Lane.Right] = new(),
     };
+
+    void Awake()
+    {
+        notePool = new NoteViewPool(notePrefab, transform, prewarm: 16);
+    }
 
     IEnumerator Start()
     {
@@ -106,7 +112,7 @@ public sealed class Game : MonoBehaviour
             var spawnTime = note.TimeSec - travelTimeSec;
             if (songTime < spawnTime) break;
 
-            var view = Instantiate(notePrefab, transform);
+            var view = notePool.Rent();
             view.Init(note);
             view.transform.position = new Vector3(GetLaneX(note.Lane), spawnY.position.y, 0);
 
@@ -186,7 +192,7 @@ public sealed class Game : MonoBehaviour
         if (dt <= miss)
         {
             list.RemoveFirst();
-            Destroy(note.gameObject);
+            notePool.Return(note);
         }
     }
 
@@ -202,7 +208,7 @@ public sealed class Game : MonoBehaviour
 
                 Debug.Log($"{lane}: Miss (late)");
                 list.RemoveFirst();
-                Destroy(n.gameObject);
+                notePool.Return(n);
             }
         }
     }
