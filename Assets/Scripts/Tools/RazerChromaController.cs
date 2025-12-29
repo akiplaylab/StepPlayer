@@ -1,8 +1,7 @@
 using System;
-using System.Text;
-using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
-using UnityEngine.Networking;
 
 public sealed class RazerChromaController : MonoBehaviour
 {
@@ -10,25 +9,32 @@ public sealed class RazerChromaController : MonoBehaviour
     [SerializeField] string appDescription = "Light up Razer Chroma devices on judgements.";
     [SerializeField] string authorName = "DanceDanceRevolution";
     [SerializeField] string authorContact = "";
-    [SerializeField] string[] devices = { "keyboard", "mouse", "headset", "mousepad", "keypad", "chromalink" };
 
-    string sessionUri;
-    Coroutine registerRoutine;
+    readonly List<string> device1DNames = new() { "ChromaLink", "Headset", "Mousepad" };
+    readonly List<string> device2DNames = new() { "Keyboard", "Keypad", "Mouse" };
+
+    Type chromaApiType;
+    Type device1DEnum;
+    Type device2DEnum;
+    MethodInfo initMethod;
+    MethodInfo uninitMethod;
+    MethodInfo useIdleAnimationsMethod;
+    MethodInfo setStaticColor1DMethod;
+    MethodInfo setStaticColor2DMethod;
+
+    bool apiReady;
 
     void OnEnable()
     {
-        if (registerRoutine == null)
-            registerRoutine = StartCoroutine(Register());
+        if (PrepareChromaApi() && InitializeChroma())
+            apiReady = true;
     }
 
     void OnDisable()
     {
-        if (registerRoutine != null)
-            StopCoroutine(registerRoutine);
-        registerRoutine = null;
-
-        if (!string.IsNullOrEmpty(sessionUri))
-            StartCoroutine(Unregister());
+        if (apiReady)
+            ShutdownChroma();
+        apiReady = false;
     }
 
     public void TriggerJudgement(Judgement judgement, Color color)
@@ -36,88 +42,101 @@ public sealed class RazerChromaController : MonoBehaviour
         if (judgement != Judgement.Perfect && judgement != Judgement.Great)
             return;
 
-        if (string.IsNullOrEmpty(sessionUri))
+        if (!apiReady)
         {
-            Debug.LogWarning("Razer Chroma session is not ready. Unable to light devices.");
+            Debug.LogWarning("Razer Chroma SDK is not ready. Ensure the Unity Chroma SDK plugin is installed and initialized.");
             return;
         }
 
-        StartCoroutine(ApplyStaticColor(color));
+        int chromaColor = ToBgr(color);
+        ApplyStaticColor(chromaColor);
     }
 
-    IEnumerator Register()
+    bool PrepareChromaApi()
     {
-        var payload = new RegisterRequest
-        {
-            title = appTitle,
-            description = appDescription,
-            author = new Author { name = authorName, contact = authorContact },
-            device_supported = devices,
-            category = "application",
-        };
+#if !UNITY_STANDALONE_WIN
+        Debug.LogWarning("Razer Chroma SDK is only supported on Windows builds.");
+        return false;
+#else
+        chromaApiType = FindType("ChromaSDK.ChromaAnimationAPI");
+        device1DEnum = FindType("ChromaSDK.Device1DEnum");
+        device2DEnum = FindType("ChromaSDK.Device2DEnum");
 
-        var json = JsonUtility.ToJson(payload);
-        using var request = BuildRequest("http://localhost:54235/razer/chromasdk", json, UnityWebRequest.kHttpVerbPOST);
-        yield return request.SendWebRequest();
-
-        if (request.result != UnityWebRequest.Result.Success)
+        if (chromaApiType == null || device1DEnum == null || device2DEnum == null)
         {
-            Debug.LogWarning($"Razer Chroma registration failed: {request.error}");
-            yield break;
+            Debug.LogWarning("Razer Chroma SDK types were not found. Please install the Chroma SDK Unity package from Razer's sample project and restart the editor.");
+            return false;
         }
 
-        var response = JsonUtility.FromJson<RegisterResponse>(request.downloadHandler.text);
-        sessionUri = response?.uri;
-        if (string.IsNullOrEmpty(sessionUri))
-            Debug.LogWarning("Razer Chroma registration returned an empty session URI.");
-    }
+        initMethod = chromaApiType.GetMethod("Init", BindingFlags.Public | BindingFlags.Static);
+        uninitMethod = chromaApiType.GetMethod("Uninit", BindingFlags.Public | BindingFlags.Static);
+        useIdleAnimationsMethod = chromaApiType.GetMethod("UseIdleAnimations", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(bool) }, null);
+        setStaticColor1DMethod = chromaApiType.GetMethod("SetStaticColor", BindingFlags.Public | BindingFlags.Static, null, new[] { device1DEnum, typeof(int) }, null);
+        setStaticColor2DMethod = chromaApiType.GetMethod("SetStaticColor", BindingFlags.Public | BindingFlags.Static, null, new[] { device2DEnum, typeof(int) }, null);
 
-    IEnumerator Unregister()
-    {
-        using var request = new UnityWebRequest(sessionUri, UnityWebRequest.kHttpVerbDELETE);
-        request.downloadHandler = new DownloadHandlerBuffer();
-        yield return request.SendWebRequest();
-
-        if (request.result != UnityWebRequest.Result.Success)
-            Debug.LogWarning($"Razer Chroma unregistration failed: {request.error}");
-
-        sessionUri = null;
-    }
-
-    IEnumerator ApplyStaticColor(Color color)
-    {
-        int packedColor = ToBgrInt(color);
-
-        foreach (var device in devices)
+        if (initMethod == null || uninitMethod == null || useIdleAnimationsMethod == null || setStaticColor1DMethod == null || setStaticColor2DMethod == null)
         {
-            var payload = new EffectRequest
+            Debug.LogWarning("Razer Chroma SDK methods were not found. Please ensure the SDK package matches the Unity sample from Razer.");
+            return false;
+        }
+
+        return true;
+#endif
+    }
+
+    bool InitializeChroma()
+    {
+        try
+        {
+            useIdleAnimationsMethod.Invoke(null, new object[] { false });
+
+            var result = initMethod.Invoke(null, null);
+            if (result is int code && code != 0)
             {
-                effect = "CHROMA_STATIC",
-                param = new ColorParam { color = packedColor },
-            };
+                Debug.LogWarning($"Razer Chroma SDK initialization failed with code {code}.");
+                return false;
+            }
 
-            var json = JsonUtility.ToJson(payload);
-            using var request = BuildRequest($"{sessionUri}/{device}", json, UnityWebRequest.kHttpVerbPOST);
-            yield return request.SendWebRequest();
-
-            if (request.result != UnityWebRequest.Result.Success)
-                Debug.LogWarning($"Razer Chroma request for {device} failed: {request.error}");
+            return true;
+        }
+        catch (TargetInvocationException ex)
+        {
+            Debug.LogWarning($"Failed to initialize Razer Chroma SDK: {ex.InnerException?.Message ?? ex.Message}");
+            return false;
         }
     }
 
-    static UnityWebRequest BuildRequest(string url, string json, string method)
+    void ShutdownChroma()
     {
-        var body = Encoding.UTF8.GetBytes(json);
-        var request = new UnityWebRequest(url, method)
+        try
         {
-            uploadHandler = new UploadHandlerRaw(body),
-            downloadHandler = new DownloadHandlerBuffer(),
-        };
-        request.SetRequestHeader("Content-Type", "application/json");
-        return request;
+            useIdleAnimationsMethod.Invoke(null, new object[] { true });
+            uninitMethod.Invoke(null, null);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"Failed to shut down Razer Chroma SDK cleanly: {ex.Message}");
+        }
     }
 
-    static int ToBgrInt(Color color)
+    void ApplyStaticColor(int color)
+    {
+        foreach (var deviceName in device1DNames)
+        {
+            var device = GetEnumValue(device1DEnum, deviceName);
+            if (device != null)
+                setStaticColor1DMethod.Invoke(null, new[] { device, (object)color });
+        }
+
+        foreach (var deviceName in device2DNames)
+        {
+            var device = GetEnumValue(device2DEnum, deviceName);
+            if (device != null)
+                setStaticColor2DMethod.Invoke(null, new[] { device, (object)color });
+        }
+    }
+
+    static int ToBgr(Color color)
     {
         int r = Mathf.Clamp(Mathf.RoundToInt(color.r * 255f), 0, 255);
         int g = Mathf.Clamp(Mathf.RoundToInt(color.g * 255f), 0, 255);
@@ -125,41 +144,30 @@ public sealed class RazerChromaController : MonoBehaviour
         return (b << 16) | (g << 8) | r;
     }
 
-    [Serializable]
-    class RegisterRequest
+    static Type FindType(string fullName)
     {
-        public string title;
-        public string description;
-        public Author author;
-        public string[] device_supported;
-        public string category;
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            var type = assembly.GetType(fullName);
+            if (type != null)
+                return type;
+        }
+        return null;
     }
 
-    [Serializable]
-    class Author
+    static object GetEnumValue(Type enumType, string name)
     {
-        public string name;
-        public string contact;
-    }
+        if (enumType == null || !enumType.IsEnum)
+            return null;
 
-    [Serializable]
-    class RegisterResponse
-    {
-        public int status;
-        public string sessionid;
-        public string uri;
-    }
-
-    [Serializable]
-    class EffectRequest
-    {
-        public string effect;
-        public ColorParam param;
-    }
-
-    [Serializable]
-    class ColorParam
-    {
-        public int color;
+        try
+        {
+            return Enum.Parse(enumType, name, ignoreCase: true);
+        }
+        catch
+        {
+            Debug.LogWarning($"Razer Chroma SDK missing enum value: {name}");
+            return null;
+        }
     }
 }
