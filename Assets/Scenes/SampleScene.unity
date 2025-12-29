@@ -267,7 +267,7 @@ GameObject:
   - component: {fileID: 567772417}
   - component: {fileID: 567772416}
   m_Layer: 0
-  m_Name: DDR
+  m_Name: Game
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -303,7 +303,7 @@ MonoBehaviour:
   miss: 0.2
   enableRecording: 1
   recordedFileName: chart_recorded.json
-  recordQuantizeSec: 0
+  recordSubdiv: 16
   leftFx: {fileID: 1836829148}
   downFx: {fileID: 1433785563}
   upFx: {fileID: 993595418}
@@ -946,7 +946,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ReceptorHitEffect
   flashColor: {r: 1, g: 0.95, b: 0.4, a: 1}
-  flashDuration: 0.07
   punchScale: 1.12
   punchUpTime: 0.04
   punchDownTime: 0.06
@@ -1144,7 +1143,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ReceptorHitEffect
   flashColor: {r: 1, g: 0.95, b: 0.4, a: 1}
-  flashDuration: 0.07
   punchScale: 1.12
   punchUpTime: 0.04
   punchDownTime: 0.06
@@ -1252,7 +1250,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ReceptorHitEffect
   flashColor: {r: 1, g: 0.95, b: 0.4, a: 1}
-  flashDuration: 0.07
   punchScale: 1.12
   punchUpTime: 0.04
   punchDownTime: 0.06
@@ -1360,7 +1357,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ReceptorHitEffect
   flashColor: {r: 1, g: 0.95, b: 0.4, a: 1}
-  flashDuration: 0.07
   punchScale: 1.12
   punchUpTime: 0.04
   punchDownTime: 0.06

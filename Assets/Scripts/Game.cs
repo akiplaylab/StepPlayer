@@ -6,7 +6,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public sealed class SimpleDdrGame : MonoBehaviour
+public sealed class Game : MonoBehaviour
 {
     [Header("Chart")]
     [SerializeField] string chartFileName = "chart.json";
