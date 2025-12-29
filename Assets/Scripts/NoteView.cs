@@ -2,35 +2,35 @@
 
 public sealed class NoteView : MonoBehaviour
 {
-    public Lane lane;
-    public double timeSec;
-    public NoteDivision division;
+    public Lane Lane { get; private set; }
+    public double TimeSec { get; private set; }
+    public NoteDivision Division { get; private set; }
 
-    private Color quarterColor = Color.red;
-    private Color eighthColor = Color.blue;
-    private Color sixteenthColor = Color.yellow;
+    [Header("Division Colors")]
+    [SerializeField] Color quarterColor = Color.red;
+    [SerializeField] Color eighthColor = Color.blue;
+    [SerializeField] Color sixteenthColor = Color.yellow;
 
     [SerializeField] SpriteRenderer spriteRenderer;
 
-    public void Init(Lane lane, double timeSec, NoteDivision division)
+    public void Init(Note note)
     {
-        this.lane = lane;
-        this.timeSec = timeSec;
-        this.division = division;
+        Lane = note.Lane;
+        TimeSec = note.TimeSec;
+        Division = note.Division;
 
         ApplyRotation();
-        ApplyColor(division);
+        ApplyColor();
     }
 
-    private void OnValidate()
+    void OnValidate()
     {
-        ApplyRotation();
         if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
     }
 
     private void ApplyRotation()
     {
-        float z = lane switch
+        float z = Lane switch
         {
             Lane.Left => 0f,
             Lane.Down => 90f,
@@ -41,12 +41,11 @@ public sealed class NoteView : MonoBehaviour
         transform.localRotation = Quaternion.Euler(0, 0, z);
     }
 
-    private void ApplyColor(NoteDivision division)
+    private void ApplyColor()
     {
-        if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         if (spriteRenderer == null) return;
 
-        spriteRenderer.color = division switch
+        spriteRenderer.color = Division switch
         {
             NoteDivision.Quarter => quarterColor,
             NoteDivision.Eighth => eighthColor,

@@ -211,7 +211,7 @@ public sealed class SimpleDdrGame : MonoBehaviour
             if (songTime < spawnTime) break;
 
             var view = Instantiate(notePrefab, transform);
-            view.Init(note.Lane, note.TimeSec, note.Division);
+            view.Init(note);
             view.transform.position = new Vector3(GetLaneX(note.Lane), spawnY.position.y, 0);
 
             active[note.Lane].AddLast(view);
@@ -225,7 +225,7 @@ public sealed class SimpleDdrGame : MonoBehaviour
         {
             foreach (var n in active[lane])
             {
-                var t = (float)((n.timeSec - songTime) / travelTimeSec);
+                var t = (float)((n.TimeSec - songTime) / travelTimeSec);
                 var y = Mathf.Lerp(judgeLineY.position.y, spawnY.position.y, Mathf.Clamp01(t));
                 var x = GetLaneX(lane);
                 n.transform.position = new Vector3(x, y, 0);
@@ -268,7 +268,7 @@ public sealed class SimpleDdrGame : MonoBehaviour
         }
 
         var note = list.First.Value;
-        var dt = Math.Abs(note.timeSec - songTime);
+        var dt = Math.Abs(note.TimeSec - songTime);
 
         var result =
             dt <= perfect ? "Perfect" :
@@ -309,7 +309,7 @@ public sealed class SimpleDdrGame : MonoBehaviour
             while (list.First != null)
             {
                 var n = list.First.Value;
-                if (songTime <= n.timeSec + miss) break;
+                if (songTime <= n.TimeSec + miss) break;
 
                 Debug.Log($"{lane}: Miss (late)");
                 list.RemoveFirst();
