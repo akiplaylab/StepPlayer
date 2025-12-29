@@ -43,6 +43,7 @@ public sealed class Game : MonoBehaviour
     [SerializeField] ReceptorHitEffect rightFx;
 
     [SerializeField] JudgementTextPresenter judgementText;
+    [SerializeField] RazerChromaController razerChroma;
 
     Chart chart;
     ChartRecorder recorder;
@@ -186,6 +187,7 @@ public sealed class Game : MonoBehaviour
             Judgement.Bad;
 
         judgementText.Show(judgement);
+        razerChroma?.TriggerJudgement(judgement, judgementText.GetColor(judgement));
 
         Debug.Log($"{lane}: {result} (dt={dt:0.000})");
 

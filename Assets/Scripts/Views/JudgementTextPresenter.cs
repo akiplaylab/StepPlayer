@@ -64,6 +64,17 @@ public sealed class JudgementTextPresenter : MonoBehaviour
         transform.localScale = baseScale;
     }
 
+    public Color GetColor(Judgement j)
+    => j switch
+    {
+        Judgement.Marvelous => marvelousColor,
+        Judgement.Perfect => perfectColor,
+        Judgement.Great => greatColor,
+        Judgement.Good => goodColor,
+        Judgement.Bad => badColor,
+        _ => Color.white
+    };
+
     IEnumerator CoShow(Judgement j)
     {
         // set content
