@@ -4,7 +4,7 @@ using System;
 public class ChartJson
 {
     public string musicFile;
-    public byte bpm;
+    public int bpm;
     public float offsetSec;
     public Measure[] measures;
 

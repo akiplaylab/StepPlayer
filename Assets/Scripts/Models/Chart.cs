@@ -4,11 +4,11 @@ using System.Collections.Generic;
 public sealed class Chart
 {
     public string MusicFile { get; }
-    public byte Bpm { get; }
+    public int Bpm { get; }
     public float OffsetSec { get; }
     public IReadOnlyList<Note> Notes { get; }
 
-    public Chart(string musicFile, byte bpm, float offsetSec, IReadOnlyList<Note> notes)
+    public Chart(string musicFile, int bpm, float offsetSec, IReadOnlyList<Note> notes)
     {
         if (bpm <= 0) throw new ArgumentOutOfRangeException(nameof(bpm), "bpm must be > 0");
 

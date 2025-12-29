@@ -6,6 +6,8 @@ using UnityEngine;
 
 public static class ChartLoader
 {
+    const int MaxSupportedBpm = 1000;
+
     public static Chart LoadFromStreamingAssets(string fileName)
     {
         var path = Path.Combine(Application.streamingAssetsPath, fileName);
@@ -15,7 +17,8 @@ public static class ChartLoader
                   ?? throw new InvalidDataException($"Failed to parse {nameof(ChartJson)}.");
         raw.measures ??= Array.Empty<ChartJson.Measure>();
 
-        if (raw.bpm <= 0) throw new InvalidDataException($"Invalid bpm: {raw.bpm}");
+        if (raw.bpm <= 0 || raw.bpm > MaxSupportedBpm)
+            throw new InvalidDataException($"Invalid bpm: {raw.bpm} (must be between 1 and {MaxSupportedBpm})");
 
         var secPerBeat = 60.0 / raw.bpm;
         var secPerMeasure = secPerBeat * 4.0;
