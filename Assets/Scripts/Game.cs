@@ -24,13 +24,6 @@ public sealed class Game : MonoBehaviour
     [Header("Lane X positions (Left, Down, Up, Right)")]
     [SerializeField] float[] laneXs = { -3f, -1f, 1f, 3f };
 
-    [Header("Judgement Windows (sec)")]
-    [SerializeField] float marvelous = 0.015f; // ★追加（Perfectより狭い）
-    [SerializeField] float perfect = 0.03f;
-    [SerializeField] float great = 0.06f;
-    [SerializeField] float good = 0.10f;
-    [SerializeField] float miss = 0.20f;
-
     [Header("Recording")]
     [SerializeField] bool enableRecording = true;
     [SerializeField] string recordedFileName = "chart_recorded.json";
@@ -42,8 +35,8 @@ public sealed class Game : MonoBehaviour
     [SerializeField] ReceptorHitEffect upFx;
     [SerializeField] ReceptorHitEffect rightFx;
 
-    [SerializeField] JudgementTextPresenter judgementText;
-    [SerializeField] RazerChromaController razerChroma;
+    [Header("Judgement")]
+    [SerializeField] Judge judge;
 
     Chart chart;
     ChartRecorder recorder;
@@ -163,35 +156,10 @@ public sealed class Game : MonoBehaviour
         var note = list.First.Value;
         var dt = Math.Abs(note.TimeSec - songTime);
 
-        var result =
-            dt <= marvelous ? "Marvelous" :
-            dt <= perfect ? "Perfect" :
-            dt <= great ? "Great" :
-            dt <= good ? "Good" :
-            dt <= miss ? "Bad" : "TooEarly/TooLate";
+        var judgement = judge.JudgeHit(lane, dt);
+        GetFx(lane).Play(judgement.Intensity);
 
-        float intensity =
-            dt <= marvelous ? 1.0f :
-            dt <= perfect ? 1.0f :
-            dt <= great ? 0.75f :
-            dt <= good ? 0.55f :
-            dt <= miss ? 0.35f : 0.0f;
-
-        GetFx(lane).Play(intensity);
-
-        Judgement judgement =
-            dt <= marvelous ? Judgement.Marvelous :
-            dt <= perfect ? Judgement.Perfect :
-            dt <= great ? Judgement.Great :
-            dt <= good ? Judgement.Good :
-            Judgement.Bad;
-
-        judgementText.Show(judgement);
-        razerChroma?.TriggerJudgement(judgement, judgementText.GetColor(judgement));
-
-        Debug.Log($"{lane}: {result} (dt={dt:0.000})");
-
-        if (dt <= miss)
+        if (judgement.ShouldConsumeNote)
         {
             list.RemoveFirst();
             notePool.Return(note);
@@ -206,7 +174,7 @@ public sealed class Game : MonoBehaviour
             while (list.First != null)
             {
                 var n = list.First.Value;
-                if (songTime <= n.TimeSec + miss) break;
+                if (songTime <= n.TimeSec + judge.MissWindow) break;
 
                 Debug.Log($"{lane}: Miss (late)");
                 list.RemoveFirst();
