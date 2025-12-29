@@ -69,7 +69,7 @@ public sealed class ChartRecorder
 
     public void OnKeyPressed(Lane lane, double songTime, Chart chart)
     {
-        if (!IsRecording) return;
+        if (!IsRecording || chart == null) return;
 
         var subdiv = GetEffectiveSubdiv();
         var secPerMeasure = (60.0 / chart.Bpm) * 4.0;
@@ -94,7 +94,10 @@ public sealed class ChartRecorder
 
         var measures = new Dictionary<int, string[]>();
 
-        foreach (var n in notes)
+        foreach (var n in notes
+                     .OrderBy(n => n.MeasureIndex)
+                     .ThenBy(n => n.RowIndex)
+                     .ThenBy(n => n.Lane))
         {
             var measureIndex = n.MeasureIndex;
             var row = n.RowIndex;
@@ -154,7 +157,7 @@ public sealed class ChartRecorder
     {
         var measureIndex = (int)Math.Floor(songTime / secPerMeasure);
         var inMeasure = songTime - measureIndex * secPerMeasure;
-        var row = (int)Math.Round((inMeasure / secPerMeasure) * subdiv);
+        var row = (int)Math.Round((inMeasure / secPerMeasure) * subdiv, MidpointRounding.AwayFromZero);
 
         if (row >= subdiv) { row = 0; measureIndex += 1; }
         if (row < 0) { row = 0; }
