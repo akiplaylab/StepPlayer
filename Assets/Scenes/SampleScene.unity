@@ -334,6 +334,7 @@ MonoBehaviour:
   - -1
   - 1
   - 3
+  marvelous: 0.015
   perfect: 0.03
   great: 0.06
   good: 0.1
@@ -397,7 +398,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 120}
-  m_SizeDelta: {x: 400, y: 50}
+  m_SizeDelta: {x: 600, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &606214355
 MonoBehaviour:
@@ -510,14 +511,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c297e4202a090245b0aac3d70e6b960, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JudgementTextPresenter
+  marvelousText: MARVELOUS!!
   perfectText: PERFECT!
   greatText: GREAT!
   goodText: GOOD
   badText: BAD
+  marvelousColor: {r: 0.98, g: 0.94, b: 0.76, a: 1}
   perfectColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   greatColor: {r: 0, g: 1, b: 0, a: 1}
   goodColor: {r: 0, g: 1, b: 1, a: 1}
   badColor: {r: 1, g: 0, b: 0, a: 1}
+  marvelousPunchScale: 1.35
   perfectPunchScale: 1.25
   greatPunchScale: 1.15
   normalScale: 1
