@@ -73,16 +73,18 @@ public sealed class ChartRecorder
 
         var measures = new Dictionary<int, string[]>();
 
+        var secPerRow = secPerMeasure / subdiv;
+
         foreach (var n in notes)
         {
-            var rawTime = n.TimeSec;
+            var rawRow = n.TimeSec / secPerRow;
+            var quantizedRow = (int)Math.Round(rawRow, MidpointRounding.AwayFromZero);
 
-            var measureIndex = (int)Math.Floor(rawTime / secPerMeasure);
-            var inMeasure = rawTime - measureIndex * secPerMeasure;
-            var row = (int)Math.Round((inMeasure / secPerMeasure) * subdiv);
+            if (quantizedRow < 0)
+                quantizedRow = 0;
 
-            if (row >= subdiv) { row = 0; measureIndex += 1; }
-            if (row < 0) { row = 0; }
+            var measureIndex = quantizedRow / subdiv;
+            var row = quantizedRow % subdiv;
 
             if (!measures.TryGetValue(measureIndex, out var rows))
             {
