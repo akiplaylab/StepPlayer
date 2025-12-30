@@ -134,10 +134,10 @@ public sealed class Game : MonoBehaviour
         var kb = Keyboard.current;
         if (kb == null) return;
 
-        TryHit(Lane.Left, kb.leftArrowKey.wasPressedThisFrame, songTime);
-        TryHit(Lane.Down, kb.downArrowKey.wasPressedThisFrame, songTime);
-        TryHit(Lane.Up, kb.upArrowKey.wasPressedThisFrame, songTime);
-        TryHit(Lane.Right, kb.rightArrowKey.wasPressedThisFrame, songTime);
+        TryHit(Lane.Left, kb.leftArrowKey.wasPressedThisFrame || kb.dKey.wasPressedThisFrame, songTime);
+        TryHit(Lane.Down, kb.downArrowKey.wasPressedThisFrame || kb.fKey.wasPressedThisFrame, songTime);
+        TryHit(Lane.Up, kb.upArrowKey.wasPressedThisFrame || kb.jKey.wasPressedThisFrame, songTime);
+        TryHit(Lane.Right, kb.rightArrowKey.wasPressedThisFrame || kb.kKey.wasPressedThisFrame, songTime);
     }
 
     void TryHit(Lane lane, bool pressed, double songTime)
