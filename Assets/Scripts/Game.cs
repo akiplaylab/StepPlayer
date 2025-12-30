@@ -38,11 +38,17 @@ public sealed class Game : MonoBehaviour
     [Header("Judgement")]
     [SerializeField] Judge judge;
 
+    [Header("Result")]
+    [SerializeField] ResultPresenter resultPresenter;
+
     Chart chart;
     ChartRecorder recorder;
     NoteViewPool notePool;
     double dspStartTime;
     int nextSpawnIndex;
+    bool resultShown;
+
+    readonly JudgementCounter judgementCounter = new();
 
     readonly Dictionary<Lane, LinkedList<NoteView>> active = new()
     {
@@ -62,6 +68,10 @@ public sealed class Game : MonoBehaviour
         chart = ChartLoader.LoadFromStreamingAssets(chartFileName);
 
         recorder = new ChartRecorder(enableRecording, recordedFileName, recordSubdiv);
+
+        judgementCounter.Reset();
+        resultShown = false;
+        resultPresenter?.Hide();
 
         audioSource.clip = musicClip;
 
@@ -93,6 +103,7 @@ public sealed class Game : MonoBehaviour
         HandleInput(songTime);
 
         CleanupMissed(songTime);
+        CheckResult(songTime);
     }
 
     double GetSongTimeSec()
@@ -163,6 +174,7 @@ public sealed class Game : MonoBehaviour
         {
             list.RemoveFirst();
             notePool.Return(note);
+            judgementCounter.Record(judgement.Judgement);
         }
     }
 
@@ -179,8 +191,35 @@ public sealed class Game : MonoBehaviour
                 Debug.Log($"{lane}: Miss (late)");
                 list.RemoveFirst();
                 notePool.Return(n);
+                judgementCounter.RecordMiss();
             }
         }
+    }
+
+    void CheckResult(double songTime)
+    {
+        if (resultShown) return;
+        if (chart == null) return;
+
+        if (!HasFinishedSong(songTime)) return;
+
+        resultShown = true;
+        resultPresenter?.Show(judgementCounter.CreateSummary());
+    }
+
+    bool HasFinishedSong(double songTime)
+    {
+        bool allSpawned = nextSpawnIndex >= chart.Notes.Count;
+        bool nothingActive = active.Values.All(list => list.Count == 0);
+        if (!(allSpawned && nothingActive)) return false;
+
+        bool audioFinished = audioSource != null && !audioSource.isPlaying && songTime > 0;
+        if (audioFinished) return true;
+
+        if (musicClip == null) return true;
+
+        var estimatedSongDuration = musicClip.length - (float)chart.OffsetSec;
+        return songTime >= estimatedSongDuration + judge.MissWindow;
     }
 
     float GetLaneX(Lane lane)
