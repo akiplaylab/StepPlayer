@@ -107,6 +107,11 @@ public sealed class Game : MonoBehaviour
         HandleInput(songTime);
 
         CleanupMissed(songTime);
+
+        if (nextSpawnIndex >= chart.Notes.Count && !audioSource.isPlaying)
+        {
+            EndToResult();
+        }
     }
 
     double GetSongTimeSec()
