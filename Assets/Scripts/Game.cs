@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public sealed class Game : MonoBehaviour
 {
@@ -38,11 +39,15 @@ public sealed class Game : MonoBehaviour
     [Header("Judgement")]
     [SerializeField] Judge judge;
 
+    [SerializeField] float endFadeOutSec = 0.4f;
+
     Chart chart;
     ChartRecorder recorder;
     NoteViewPool notePool;
     double dspStartTime;
     int nextSpawnIndex;
+    bool isEnding;
+    float initialVolume;
 
     readonly Dictionary<Lane, LinkedList<NoteView>> active = new()
     {
@@ -64,6 +69,7 @@ public sealed class Game : MonoBehaviour
         recorder = new ChartRecorder(enableRecording, recordedFileName, recordSubdiv);
 
         audioSource.clip = musicClip;
+        initialVolume = audioSource != null ? audioSource.volume : 1f;
 
         if (!musicClip.preloadAudioData)
             musicClip.LoadAudioData();
@@ -82,6 +88,9 @@ public sealed class Game : MonoBehaviour
     void Update()
     {
         if (AudioSettings.dspTime < dspStartTime)
+            return;
+
+        if (isEnding)
             return;
 
         var songTime = GetSongTimeSec();
@@ -199,4 +208,39 @@ public sealed class Game : MonoBehaviour
         Lane.Right => rightFx,
         _ => throw new InvalidDataException($"Invalid lane: {lane}"),
     };
+
+    public void EndToResult()
+    {
+        if (isEnding) return;
+        isEnding = true;
+
+        StartCoroutine(FadeOutAndLoadResult());
+    }
+
+    IEnumerator FadeOutAndLoadResult()
+    {
+        if (audioSource != null)
+        {
+            float from = audioSource.volume;
+            float to = 0f;
+
+            float t = 0f;
+            float dur = Mathf.Max(0.01f, endFadeOutSec);
+
+            while (t < dur)
+            {
+                t += Time.unscaledDeltaTime;
+                float a = Mathf.Clamp01(t / dur);
+                audioSource.volume = Mathf.Lerp(from, to, a);
+                yield return null;
+            }
+
+            audioSource.volume = 0f;
+            audioSource.Stop();
+
+            audioSource.volume = initialVolume;
+        }
+
+        SceneManager.LoadScene("ResultScene");
+    }
 }
