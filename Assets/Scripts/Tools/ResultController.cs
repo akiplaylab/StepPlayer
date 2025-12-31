@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public sealed class ResultController : MonoBehaviour
 {
@@ -24,5 +25,12 @@ public sealed class ResultController : MonoBehaviour
             $"Miss       {s.MissCount}\n";
 
         ResultStore.Clear();
+    }
+
+    public void Retry()
+    {
+        ResultStore.Clear();
+
+        SceneManager.LoadScene("GameScene");
     }
 }
