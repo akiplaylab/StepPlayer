@@ -40,6 +40,8 @@ public sealed class Game : MonoBehaviour
     [SerializeField] Judge judge;
 
     [SerializeField] float endFadeOutSec = 0.4f;
+
+    [SerializeField] bool endWhenChartFinished = true;
     [SerializeField] float endWhenChartFinishedDelaySec = 0.8f;
 
     Chart chart;
@@ -110,22 +112,25 @@ public sealed class Game : MonoBehaviour
 
         CleanupMissed(songTime);
 
-        bool allSpawned = nextSpawnIndex >= chart.Notes.Count;
-        bool noActiveNotes = active.Values.All(list => list.Count == 0);
-
-        if (allSpawned && noActiveNotes)
+        if (endWhenChartFinished)
         {
-            if (double.IsNaN(chartFinishedAtSongTime))
-                chartFinishedAtSongTime = songTime;
+            bool allSpawned = nextSpawnIndex >= chart.Notes.Count;
+            bool noActiveNotes = active.Values.All(list => list.Count == 0);
 
-            if (songTime - chartFinishedAtSongTime >= endWhenChartFinishedDelaySec)
-                EndToResult();
+            if (allSpawned && noActiveNotes)
+            {
+                if (double.IsNaN(chartFinishedAtSongTime))
+                    chartFinishedAtSongTime = songTime;
 
-            return;
-        }
-        else
-        {
-            chartFinishedAtSongTime = double.NaN;
+                if (songTime - chartFinishedAtSongTime >= endWhenChartFinishedDelaySec)
+                    EndToResult();
+
+                return;
+            }
+            else
+            {
+                chartFinishedAtSongTime = double.NaN;
+            }
         }
 
         if (nextSpawnIndex >= chart.Notes.Count && !audioSource.isPlaying)
