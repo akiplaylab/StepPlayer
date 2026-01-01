@@ -350,6 +350,7 @@ MonoBehaviour:
     judgementText: {fileID: 606214357}
     razerChroma: {fileID: 1578084507}
   endFadeOutSec: 0.4
+  endWhenChartFinishedDelaySec: 0.8
 --- !u!4 &567772417
 Transform:
   m_ObjectHideFlags: 0
