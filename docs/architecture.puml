@@ -1,0 +1,136 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam classAttributeIconSize 0
+
+package "Gameplay" {
+  class Game {
+    +Start()
+    +Update()
+    +EndToResult()
+  }
+}
+
+package "Models" {
+  class Chart {
+    +MusicFile : string
+    +Bpm : int
+    +OffsetSec : float
+    +Notes : IReadOnlyList<Note>
+  }
+  class ChartJson {
+    +musicFile : string
+    +bpm : int
+    +offsetSec : float
+  }
+  class Note {
+    +TimeSec : double
+    +Lane : Lane
+    +Division : NoteDivision
+  }
+  enum Lane { Left; Down; Up; Right }
+  enum NoteDivision { Quarter; Eighth; Sixteenth }
+  enum Judgement { None; Marvelous; Perfect; Great; Good; Bad; Miss }
+  class ResultStore {
+    +Summary : JudgementSummary
+    +HasSummary : bool
+    +Clear()
+  }
+  class JudgementSummary {
+    +MissCount : int
+    +GetCount(j: Judgement) : int
+  }
+}
+
+package "Tools" {
+  class ChartLoader {
+    +LoadFromStreamingAssets(fileName: string) : Chart
+  }
+  class ChartRecorder {
+    +IsRecording : bool
+    +UpdateHotkeys(chart: Chart)
+    +OnKeyPressed(lane: Lane, songTime: double)
+  }
+  class JudgementCounter {
+    +Record(j: Judgement)
+    +RecordMiss()
+    +CreateSummary() : JudgementSummary
+  }
+  class NoteViewPool {
+    +Rent() : NoteView
+    +Return(view: NoteView)
+  }
+  class RazerChromaController {
+    +TriggerJudgement(j: Judgement, baseColor: Color)
+  }
+  class ResultController {
+    +Retry()
+  }
+  class ColorUtil
+}
+
+package "Judging" {
+  class Judge {
+    +MissWindow : float
+    +JudgeHit(lane: Lane, dt: double) : JudgementOutcome
+  }
+  class JudgementOutcome {
+    +Judgement : Judgement
+    +Intensity : float
+    +ShouldConsumeNote : bool
+  }
+}
+
+package "Views" {
+  class NoteView {
+    +Lane : Lane
+    +TimeSec : double
+    +Division : NoteDivision
+    +Init(note: Note)
+  }
+  class ReceptorHitEffect {
+    +Play(intensity01: float)
+  }
+  class JudgementTextPresenter {
+    +Show(j: Judgement)
+  }
+  class ResultJudgementRowView {
+    +Set(j: Judgement, count: int)
+  }
+  class JudgementStyle {
+    +GetColor(j: Judgement) : Color
+    +GetCountActiveColor() : Color
+    +GetCountInactiveColor() : Color
+  }
+}
+
+Game --> ChartLoader : loads
+Game --> Chart : uses
+Game --> ChartRecorder
+Game --> NoteViewPool
+Game --> Judge
+Game --> ReceptorHitEffect
+Game --> ResultStore : stores summary
+Game --> NoteView : spawns
+
+ChartLoader --> ChartJson : parses
+ChartLoader --> Note
+ChartLoader --> NoteDivision
+ChartLoader --> Lane
+ChartRecorder --> Note
+ChartRecorder --> Chart
+ChartRecorder --> ChartJson
+ChartRecorder --> Lane
+
+Judge --> JudgementTextPresenter
+Judge --> RazerChromaController
+Judge --> JudgementStyle
+Judge --> JudgementOutcome
+JudgementCounter --> JudgementSummary
+ResultController --> ResultStore
+ResultController --> ResultJudgementRowView
+ResultJudgementRowView --> JudgementStyle
+NoteView --> NoteDivision
+JudgementTextPresenter --> JudgementStyle
+RazerChromaController --> Judgement
+
+@enduml
