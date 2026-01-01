@@ -9,12 +9,12 @@ using UnityEngine.SceneManagement;
 
 public sealed class Game : MonoBehaviour
 {
-    [Header("Chart")]
-    [SerializeField] string chartFileName = "chart.json";
+    [Header("Song Select")]
+    [SerializeField] List<SongDefinition> songs = new();
+    [SerializeField] int selectedSongIndex = 0;
 
     [Header("Audio")]
     [SerializeField] AudioSource audioSource;
-    [SerializeField] AudioClip musicClip;
 
     [Header("Spawn/Move")]
     [SerializeField] NoteView notePrefab;
@@ -73,17 +73,32 @@ public sealed class Game : MonoBehaviour
         ResultStore.Clear();
         counter.Reset();
 
-        chart = ChartLoader.LoadFromStreamingAssets(chartFileName);
+        if (songs == null || songs.Count == 0)
+            throw new InvalidOperationException("songs が空です。Inspector で SongDefinition を追加してください。");
+
+        selectedSongIndex = Mathf.Clamp(selectedSongIndex, 0, songs.Count - 1);
+        var song = songs[selectedSongIndex];
+
+        if (string.IsNullOrWhiteSpace(song.songId))
+            throw new InvalidOperationException("SongDefinition.songId が空です。");
+
+        if (song.musicClip == null)
+            throw new InvalidOperationException($"SongDefinition.musicClip が未設定です: {song.songId}");
+
+        var chartRelativePath = Path.Combine("Songs", song.songId, song.chartFileName);
+
+        chart = ChartLoader.LoadFromStreamingAssets(chartRelativePath);
 
         recorder = new ChartRecorder(enableRecording, recordedFileName, recordSubdiv);
 
-        audioSource.clip = musicClip;
+        audioSource.clip = song.musicClip;
+
         initialVolume = audioSource != null ? audioSource.volume : 1f;
 
-        if (!musicClip.preloadAudioData)
-            musicClip.LoadAudioData();
+        if (!song.musicClip.preloadAudioData)
+            song.musicClip.LoadAudioData();
 
-        while (musicClip.loadState == AudioDataLoadState.Loading)
+        while (song.musicClip.loadState == AudioDataLoadState.Loading)
             yield return null;
 
         dspStartTime = AudioSettings.dspTime + 0.2;
@@ -91,7 +106,7 @@ public sealed class Game : MonoBehaviour
 
         nextSpawnIndex = 0;
 
-        Debug.Log($"Loaded notes: {chart.Notes.Count}, offset: {chart.OffsetSec:0.###}, bpm: {chart.Bpm:0.###}");
+        Debug.Log($"Loaded song: {song.songId}, notes: {chart.Notes.Count}, offset: {chart.OffsetSec:0.###}, bpm: {chart.Bpm:0.###}");
     }
 
     void Update()

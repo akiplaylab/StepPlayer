@@ -322,9 +322,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ccb3349232fee744a3dedf0604a2f89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimpleDdrGame
-  chartFileName: chart.json
+  songs:
+  - songId: dance-mood
+    musicClip: {fileID: 8300000, guid: c4c12f28566ea654482a64cb013d652f, type: 3}
+    chartFileName: chart.json
+  - songId: starry-stella
+    musicClip: {fileID: 8300000, guid: 7a8d53f874a23b14297f9dede9aeb354, type: 3}
+    chartFileName: chart.json
+  selectedSongIndex: 0
   audioSource: {fileID: 1982188417}
-  musicClip: {fileID: 8300000, guid: c4c12f28566ea654482a64cb013d652f, type: 3}
   notePrefab: {fileID: 422535996257625606, guid: a8809871df1d4744d972c86de5a7a7f5, type: 3}
   spawnY: {fileID: 1098005563}
   judgeLineY: {fileID: 698216054}
@@ -351,7 +357,7 @@ MonoBehaviour:
     razerChroma: {fileID: 1578084507}
     style: {fileID: 11400000, guid: b118db814f47388438a2751bacf77473, type: 2}
   endFadeOutSec: 0.4
-  endWhenChartFinished: 1
+  endWhenChartFinished: 0
   endWhenChartFinishedDelaySec: 0.8
 --- !u!4 &567772417
 Transform:
