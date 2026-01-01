@@ -11,10 +11,12 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1d58cf7040837e84d8193af6ab7611a4, type: 3}
   m_Name: JudgementStyle
-  m_EditorClassIdentifier: Assembly-CSharp::JudgementStyleSettings
-  marvelous: {r: 0.95686275, g: 0.9647059, b: 0.9529412, a: 1}
-  perfect: {r: 0.9019608, g: 0.9411765, b: 0, a: 1}
-  great: {r: 0, g: 0.9019608, b: 0.101960786, a: 1}
-  good: {r: 0, g: 0.6509804, b: 0.8392157, a: 1}
-  bad: {r: 0.83137256, g: 0, b: 0.83137256, a: 1}
-  miss: {r: 0.9019608, g: 0, b: 0, a: 1}
+  m_EditorClassIdentifier: Assembly-CSharp::JudgementStyle
+  marvelous: {r: 0.9137255, g: 0.9254902, b: 0.9137255, a: 1}
+  perfect: {r: 0.8352941, g: 0.8784314, b: 0.10980392, a: 1}
+  great: {r: 0.06666667, g: 0.8509804, b: 0.078431375, a: 1}
+  good: {r: 0.05882353, g: 0.58431375, b: 0.74509805, a: 1}
+  bad: {r: 0.7254902, g: 0.06666667, b: 0.72156864, a: 1}
+  miss: {r: 0.74509805, g: 0.07058824, b: 0.047058824, a: 1}
+  countActive: {r: 1, g: 1, b: 1, a: 1}
+  countInactive: {r: 0.3529412, g: 0.3529412, b: 0.3529412, a: 1}

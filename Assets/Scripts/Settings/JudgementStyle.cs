@@ -21,4 +21,11 @@ public sealed class JudgementStyle : ScriptableObject
         Judgement.Miss => miss,
         _ => Color.white
     };
+
+    [Header("Result Count Digits")]
+    public Color countActive = ColorUtil.HexToColor("#FFFFFF");
+    public Color countInactive = ColorUtil.HexToColor("#5A5A5A");
+
+    public Color GetCountActiveColor() => countActive;
+    public Color GetCountInactiveColor() => countInactive;
 }
