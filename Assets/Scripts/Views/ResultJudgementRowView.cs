@@ -41,7 +41,9 @@ public sealed class ResultJudgementRowView : MonoBehaviour
 
         for (int i = 0; i < s.Length; i++)
         {
-            bool inactiveDigit = (firstNonZero == -1) || (i < firstNonZero);
+            bool isLastDigit = (i == s.Length - 1);
+            bool inactiveDigit = !isLastDigit && ((firstNonZero == -1) || (i < firstNonZero));
+
             sb.Append(inactiveDigit ? $"<color=#{g}>" : $"<color=#{a}>");
             sb.Append(s[i]);
             sb.Append("</color>");
