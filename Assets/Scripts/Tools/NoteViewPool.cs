@@ -26,6 +26,10 @@ public sealed class NoteViewPool
     public NoteView Rent()
     {
         var v = pool.Count > 0 ? pool.Pop() : CreateNew();
+
+        var sr = v.GetComponent<SpriteRenderer>();
+        sr.sortingOrder = 10;
+
         v.gameObject.SetActive(true);
         return v;
     }
