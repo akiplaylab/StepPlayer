@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public sealed class SongSelectController : MonoBehaviour
@@ -22,16 +21,13 @@ public sealed class SongSelectController : MonoBehaviour
 
     void Update()
     {
-        var kb = Keyboard.current;
-        if (kb == null) return;
-
-        if (kb.upArrowKey.wasPressedThisFrame)
+        if (KeyBindings.MenuUpPressedThisFrame())
             MoveSelection(-1);
 
-        if (kb.downArrowKey.wasPressedThisFrame)
+        if (KeyBindings.MenuDownPressedThisFrame())
             MoveSelection(+1);
 
-        if (kb.enterKey.wasPressedThisFrame)
+        if (KeyBindings.MenuConfirmPressedThisFrame())
             SelectSong(selectedIndex);
     }
 

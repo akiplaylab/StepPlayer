@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public sealed class Game : MonoBehaviour
@@ -187,13 +186,10 @@ public sealed class Game : MonoBehaviour
 
     void HandleInput(double songTime)
     {
-        var kb = Keyboard.current;
-        if (kb == null) return;
-
-        TryHit(Lane.Left, kb.leftArrowKey.wasPressedThisFrame || kb.dKey.wasPressedThisFrame, songTime);
-        TryHit(Lane.Down, kb.downArrowKey.wasPressedThisFrame || kb.fKey.wasPressedThisFrame, songTime);
-        TryHit(Lane.Up, kb.upArrowKey.wasPressedThisFrame || kb.jKey.wasPressedThisFrame, songTime);
-        TryHit(Lane.Right, kb.rightArrowKey.wasPressedThisFrame || kb.kKey.wasPressedThisFrame, songTime);
+        TryHit(Lane.Left, KeyBindings.LanePressedThisFrame(Lane.Left), songTime);
+        TryHit(Lane.Down, KeyBindings.LanePressedThisFrame(Lane.Down), songTime);
+        TryHit(Lane.Up, KeyBindings.LanePressedThisFrame(Lane.Up), songTime);
+        TryHit(Lane.Right, KeyBindings.LanePressedThisFrame(Lane.Right), songTime);
     }
 
     void TryHit(Lane lane, bool pressed, double songTime)
