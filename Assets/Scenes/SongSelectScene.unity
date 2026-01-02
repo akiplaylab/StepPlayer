@@ -363,13 +363,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a785c09105ce9f244ae9d54cf840a4f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SelectMusicController
-  songs:
-  - songId: dance-mood
-    musicClip: {fileID: 8300000, guid: c4c12f28566ea654482a64cb013d652f, type: 3}
-    chartFileName: chart.json
-  - songId: starry-stella
-    musicClip: {fileID: 8300000, guid: 7a8d53f874a23b14297f9dede9aeb354, type: 3}
-    chartFileName: chart.json
+  library: {fileID: 11400000, guid: 93db53153382d5c4d88c9b27de41f902, type: 2}
 --- !u!4 &747265254
 Transform:
   m_ObjectHideFlags: 0

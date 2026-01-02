@@ -10,8 +10,8 @@ using UnityEngine.SceneManagement;
 public sealed class Game : MonoBehaviour
 {
     [Header("Song Select")]
-    [SerializeField] List<SongDefinition> songs = new();
-    [SerializeField] int selectedSongIndex = 0;
+    [SerializeField] SongLibrary library;
+    [SerializeField] int fallbackSongIndex = 0;
 
     [Header("Audio")]
     [SerializeField] AudioSource audioSource;
@@ -73,12 +73,8 @@ public sealed class Game : MonoBehaviour
         ResultStore.Clear();
         counter.Reset();
 
-        if (songs == null || songs.Count == 0)
-            throw new InvalidOperationException("songs が空です。Inspector で SongDefinition を追加してください。");
-
-        selectedSongIndex = Mathf.Clamp(selectedSongIndex, 0, songs.Count - 1);
-
-        var song = SelectedSong.Value ?? songs[selectedSongIndex];
+        var song = (SelectedSong.Value ?? (library != null ? library.Get(fallbackSongIndex) : null))
+            ?? throw new InvalidOperationException("No song selected and no fallback song available (SongLibrary missing or empty).");
 
         if (string.IsNullOrWhiteSpace(song.songId))
             throw new InvalidOperationException("SongDefinition.songId が空です。");
