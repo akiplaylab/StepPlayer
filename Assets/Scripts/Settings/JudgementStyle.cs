@@ -10,6 +10,7 @@ public sealed class JudgementStyle : ScriptableObject
     public Color good = ColorUtil.HexToColor("#0F95BE");
     public Color bad = ColorUtil.HexToColor("#B911B8");
     public Color miss = ColorUtil.HexToColor("#BE120C");
+    public Color maxCombo = ColorUtil.HexToColor("#D40CF6");
 
     public Color GetColor(Judgement judgement) => judgement switch
     {
@@ -21,6 +22,8 @@ public sealed class JudgementStyle : ScriptableObject
         Judgement.Miss => miss,
         _ => Color.white
     };
+
+    public Color GetMaxComboColor() => maxCombo;
 
     [Header("Result Count Digits")]
     public Color countActive = ColorUtil.HexToColor("#FFFFFF");

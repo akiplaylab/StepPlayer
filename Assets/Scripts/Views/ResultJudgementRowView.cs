@@ -10,12 +10,22 @@ public sealed class ResultJudgementRowView : MonoBehaviour
 
     public void Set(Judgement judgement, int count)
     {
-        labelText.text = judgement.ToString().ToUpper();
-        labelText.color = style.GetColor(judgement);
+        Set(judgement.ToString().ToUpper(), style.GetColor(judgement), count, style.GetCountActiveColor(), style.GetCountInactiveColor());
+    }
+
+    public void Set(string label, Color labelColor, int count, Color countActiveColor, Color countInactiveColor)
+    {
+        labelText.text = label;
+        labelText.color = labelColor;
 
         countText.richText = true;
-        countText.text = BuildCount(count, digits: 4, style.GetCountActiveColor(), style.GetCountInactiveColor());
+        countText.text = BuildCount(count, digits: 4, countActiveColor, countInactiveColor);
         countText.color = Color.white;
+    }
+
+    public void SetMaxCombo(int count)
+    {
+        Set("MAX COMBO", style.GetMaxComboColor(), count, style.GetCountActiveColor(), style.GetCountInactiveColor());
     }
 
     static string BuildCount(int value, int digits, Color active, Color inactive)
