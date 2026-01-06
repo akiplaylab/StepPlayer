@@ -8,7 +8,7 @@ public sealed class SongSelectController : MonoBehaviour
     [SerializeField] SongLibrary library;
 
     [Header("UI")]
-    [SerializeField] Transform listRoot;
+    [SerializeField] RectTransform listRoot;
     [SerializeField] SongRowView rowPrefab;
 
     [Header("Sound Effects")]
@@ -20,7 +20,30 @@ public sealed class SongSelectController : MonoBehaviour
     [SerializeField] AudioSource previewSource;
     [SerializeField] float previewStartTimeSec = 0f;
 
+    [Header("Preview Preload (nearby)")]
+    [SerializeField] int preloadRadius = 1;
+
+    [Header("Reel Layout")]
+    [SerializeField] float centerX = -20f;
+    [SerializeField] float centerY = 0f;
+    [SerializeField] float spacingY = 110f;
+
+    [SerializeField] float rightXMax = 80f;
+    [SerializeField] AnimationCurve xOffsetByAbsIndex = AnimationCurve.EaseInOut(0, 0, 6, 1);
+
+    [Header("Reel Motion")]
+    [SerializeField] float smoothTime = 0.08f;
+    [SerializeField] float snapThreshold = 0.1f;
+
+    [Header("Reel Visual")]
+    [SerializeField] AnimationCurve scaleByAbsIndex = AnimationCurve.EaseInOut(0, 1.0f, 6, 0.88f);
+    [SerializeField] AnimationCurve alphaByAbsIndex = AnimationCurve.EaseInOut(0, 1.0f, 6, 0.35f);
+
     readonly List<SongRowView> rows = new();
+    readonly List<Vector2> rowVels = new();
+    readonly List<RectTransform> rowRects = new();
+    readonly List<CanvasGroup> rowCgs = new();
+
     int selectedIndex = 0;
     bool isTransitioning = false;
     Coroutine previewCoroutine;
@@ -28,7 +51,7 @@ public sealed class SongSelectController : MonoBehaviour
     void Start()
     {
         BuildList();
-        UpdateSelection();
+        PreloadNearbyPreviewAudio(selectedIndex);
         PlayPreview();
     }
 
@@ -44,11 +67,15 @@ public sealed class SongSelectController : MonoBehaviour
 
         if (KeyBindings.MenuConfirmPressedThisFrame())
             StartCoroutine(SelectSongAndLoad(selectedIndex));
+
+        ApplyReelLayout();
     }
 
     void BuildList()
     {
         rows.Clear();
+        rowRects.Clear();
+        rowCgs.Clear();
 
         for (int i = listRoot.childCount - 1; i >= 0; i--)
             Destroy(listRoot.GetChild(i).gameObject);
@@ -57,8 +84,20 @@ public sealed class SongSelectController : MonoBehaviour
         {
             var row = Instantiate(rowPrefab, listRoot);
             row.Bind(this, i, library.Songs[i]);
+
             rows.Add(row);
+
+            var rt = (RectTransform)row.transform;
+            rowRects.Add(rt);
+
+            if (!rt.TryGetComponent(out CanvasGroup cg))
+                cg = rt.gameObject.AddComponent<CanvasGroup>();
+            rowCgs.Add(cg);
         }
+
+        rowVels.Clear();
+        for (int i = 0; i < rows.Count; i++)
+            rowVels.Add(Vector2.zero);
     }
 
     void MoveSelection(int delta)
@@ -68,16 +107,54 @@ public sealed class SongSelectController : MonoBehaviour
 
         if (selectedIndex != prevIndex)
         {
-            UpdateSelection();
             PlayMoveSe();
+            PreloadNearbyPreviewAudio(selectedIndex);
             PlayPreview();
         }
     }
 
-    void UpdateSelection()
+    void ApplyReelLayout()
     {
+        float dt = Mathf.Min(Time.unscaledDeltaTime, 1f / 30f);
+
+        int visualSelected = 0;
+        float best = float.MaxValue;
+
         for (int i = 0; i < rows.Count; i++)
-            rows[i].SetSelected(i == selectedIndex);
+        {
+            var rect = rowRects[i];
+
+            int d = i - selectedIndex;
+            float abs = Mathf.Abs(d);
+
+            float x01 = xOffsetByAbsIndex.Evaluate(abs);
+            float x = Mathf.Lerp(centerX, rightXMax, x01);
+            float y = centerY - d * spacingY;
+
+            var target = new Vector2(x, y);
+
+            var v = rowVels[i];
+            var p = Vector2.SmoothDamp(rect.anchoredPosition, target, ref v, smoothTime, Mathf.Infinity, dt);
+
+            if ((p - target).sqrMagnitude < snapThreshold * snapThreshold)
+                p = target;
+
+            rect.anchoredPosition = p;
+            rowVels[i] = v;
+
+            rect.localScale = Vector3.one * scaleByAbsIndex.Evaluate(abs);
+            rowCgs[i].alpha = alphaByAbsIndex.Evaluate(abs);
+
+            float dist = Mathf.Abs(rect.anchoredPosition.y - centerY);
+            if (dist < best)
+            {
+                best = dist;
+                visualSelected = i;
+            }
+        }
+
+        for (int i = 0; i < rows.Count; i++)
+            rows[i].SetSelected(i == visualSelected);
     }
 
     public void OnRowClicked(int index)
@@ -85,8 +162,10 @@ public sealed class SongSelectController : MonoBehaviour
         if (isTransitioning) return;
 
         selectedIndex = index;
-        UpdateSelection();
+
+        PreloadNearbyPreviewAudio(selectedIndex);
         PlayPreview();
+
         StartCoroutine(SelectSongAndLoad(index));
     }
 
@@ -141,16 +220,19 @@ public sealed class SongSelectController : MonoBehaviour
     {
         previewSource.Stop();
 
-        if (!song.musicClip.preloadAudioData)
-        {
-            song.musicClip.LoadAudioData();
+        yield return null;
 
-            while (song.musicClip.loadState == AudioDataLoadState.Loading)
-                yield return null;
-        }
+        var clip = song.musicClip;
+        if (clip == null) yield break;
 
-        previewSource.clip = song.musicClip;
-        previewSource.time = Mathf.Clamp(previewStartTimeSec, 0f, song.musicClip.length);
+        if (clip.loadState == AudioDataLoadState.Unloaded)
+            clip.LoadAudioData();
+
+        while (clip.loadState == AudioDataLoadState.Loading)
+            yield return null;
+
+        previewSource.clip = clip;
+        previewSource.time = Mathf.Clamp(previewStartTimeSec, 0f, clip.length);
         previewSource.Play();
     }
 
@@ -164,5 +246,33 @@ public sealed class SongSelectController : MonoBehaviour
 
         if (previewSource != null)
             previewSource.Stop();
+    }
+
+    void PreloadNearbyPreviewAudio(int centerIndex)
+    {
+        if (preloadRadius <= 0)
+        {
+            PreloadPreviewAudio(centerIndex);
+            return;
+        }
+
+        int start = Mathf.Max(0, centerIndex - preloadRadius);
+        int end = Mathf.Min(library.Count - 1, centerIndex + preloadRadius);
+
+        for (int i = start; i <= end; i++)
+            PreloadPreviewAudio(i);
+    }
+
+    void PreloadPreviewAudio(int index)
+    {
+        if (index < 0 || index >= library.Count) return;
+
+        var song = library.Get(index);
+        if (song == null || song.musicClip == null) return;
+
+        var clip = song.musicClip;
+
+        if (clip.loadState == AudioDataLoadState.Unloaded)
+            clip.LoadAudioData();
     }
 }
