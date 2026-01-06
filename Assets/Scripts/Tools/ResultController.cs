@@ -13,6 +13,7 @@ public sealed class ResultController : MonoBehaviour
     [SerializeField] ResultJudgementRowView rowMiss;
     [SerializeField] ResultJudgementRowView rowMaxCombo;
     [SerializeField] TMP_Text scoreText;
+    [SerializeField] TMP_Text danceLevelText;
 
     void Start()
     {
@@ -37,6 +38,9 @@ public sealed class ResultController : MonoBehaviour
         if (scoreText != null)
             scoreText.text = $"SCORE {s.Score:0000000}";
 
+        if (danceLevelText != null)
+            danceLevelText.text = s.DanceLevel;
+
         ResultStore.Clear();
     }
 
@@ -54,6 +58,9 @@ public sealed class ResultController : MonoBehaviour
 
         if (scoreText != null)
             scoreText.text = "SCORE 0000000";
+
+        if (danceLevelText != null)
+            danceLevelText.text = ScoreCalculator.GetDanceLevel(0);
     }
 
     public void Retry()

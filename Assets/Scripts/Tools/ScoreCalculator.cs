@@ -19,4 +19,26 @@ public static class ScoreCalculator
 
         return (int)(basePoint * weighted);
     }
+
+    public static string GetDanceLevel(int score, bool failed = false)
+    {
+        if (failed) return "E";
+
+        if (score >= 990_000) return "AAA";
+        if (score >= 950_000) return "AA+";
+        if (score >= 900_000) return "AA";
+        if (score >= 890_000) return "AA-";
+        if (score >= 850_000) return "A+";
+        if (score >= 800_000) return "A";
+        if (score >= 790_000) return "A-";
+        if (score >= 750_000) return "B+";
+        if (score >= 700_000) return "B";
+        if (score >= 690_000) return "B-";
+        if (score >= 650_000) return "C+";
+        if (score >= 600_000) return "C";
+        if (score >= 590_000) return "C-";
+        if (score >= 550_000) return "D+";
+
+        return "D";
+    }
 }

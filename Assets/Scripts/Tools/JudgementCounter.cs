@@ -78,12 +78,15 @@ public readonly struct JudgementSummary
             GetCount(snapshot, Judgement.Good),
             GetCount(snapshot, Judgement.Bad),
             missCount);
+
+        DanceLevel = ScoreCalculator.GetDanceLevel(Score);
     }
 
     public int MissCount { get; }
     public int MaxCombo => maxCombo;
     public int TotalNotes { get; }
     public int Score { get; }
+    public string DanceLevel { get; }
 
     static int GetCount(IReadOnlyDictionary<Judgement, int> source, Judgement judgement)
     {
