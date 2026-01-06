@@ -20,6 +20,10 @@ public sealed class SongSelectController : MonoBehaviour
     [SerializeField] AudioSource previewSource;
     [SerializeField] float previewStartTimeSec = 0f;
 
+    [Header("Reel Layout (temp)")]
+    [SerializeField] float spacingY = 110f;
+    [SerializeField] float centerY = 0f;
+
     readonly List<SongRowView> rows = new();
     int selectedIndex = 0;
     bool isTransitioning = false;
@@ -77,7 +81,14 @@ public sealed class SongSelectController : MonoBehaviour
     void UpdateSelection()
     {
         for (int i = 0; i < rows.Count; i++)
+        {
             rows[i].SetSelected(i == selectedIndex);
+
+            var rect = (RectTransform)rows[i].transform;
+
+            int d = i - selectedIndex;
+            rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, centerY - d * spacingY);
+        }
     }
 
     public void OnRowClicked(int index)
