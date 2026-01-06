@@ -36,7 +36,7 @@ public sealed class ResultController : MonoBehaviour
             rowMaxCombo.SetMaxCombo(s.MaxCombo);
 
         if (scoreText != null)
-            scoreText.text = $"SCORE {s.Score:0000000}";
+            scoreText.text = $"{s.Score:0000000} SCORE";
 
         if (danceLevelText != null)
             danceLevelText.text = s.DanceLevel;
@@ -57,7 +57,7 @@ public sealed class ResultController : MonoBehaviour
             rowMaxCombo.SetMaxCombo(0);
 
         if (scoreText != null)
-            scoreText.text = "SCORE 0000000";
+            scoreText.text = "0000000 SCORE";
 
         if (danceLevelText != null)
             danceLevelText.text = ScoreCalculator.GetDanceLevel(0);
