@@ -7,25 +7,32 @@ public sealed class ResultJudgementRowView : MonoBehaviour
     [SerializeField] TMP_Text labelText;
     [SerializeField] TMP_Text countText;
     [SerializeField] JudgementStyle style;
+    [SerializeField] int countDigits = 4;
 
     public void Set(Judgement judgement, int count)
     {
         Set(judgement.ToString().ToUpper(), style.GetColor(judgement), count, style.GetCountActiveColor(), style.GetCountInactiveColor());
     }
 
-    public void Set(string label, Color labelColor, int count, Color countActiveColor, Color countInactiveColor)
+    public void Set(string label, Color labelColor, int count, Color countActiveColor, Color countInactiveColor, int? digitsOverride = null)
     {
         labelText.text = label;
         labelText.color = labelColor;
 
         countText.richText = true;
-        countText.text = BuildCount(count, digits: 4, countActiveColor, countInactiveColor);
+        int digits = digitsOverride ?? countDigits;
+        countText.text = BuildCount(count, Mathf.Max(1, digits), countActiveColor, countInactiveColor);
         countText.color = Color.white;
     }
 
     public void SetMaxCombo(int count)
     {
         Set("MAX COMBO", style.GetMaxComboColor(), count, style.GetCountActiveColor(), style.GetCountInactiveColor());
+    }
+
+    public void SetScore(int score, int digits)
+    {
+        Set("SCORE", style.GetMaxComboColor(), score, style.GetCountActiveColor(), style.GetCountInactiveColor(), digits);
     }
 
     static string BuildCount(int value, int digits, Color active, Color inactive)

@@ -11,6 +11,7 @@ public sealed class ResultController : MonoBehaviour
     [SerializeField] ResultJudgementRowView rowBad;
     [SerializeField] ResultJudgementRowView rowMiss;
     [SerializeField] ResultJudgementRowView rowMaxCombo;
+    [SerializeField] ResultJudgementRowView rowScore;
 
     void Start()
     {
@@ -32,6 +33,9 @@ public sealed class ResultController : MonoBehaviour
         if (rowMaxCombo != null)
             rowMaxCombo.SetMaxCombo(s.MaxCombo);
 
+        if (rowScore != null)
+            rowScore.SetScore(s.Score, digits: 7);
+
         ResultStore.Clear();
     }
 
@@ -46,6 +50,9 @@ public sealed class ResultController : MonoBehaviour
 
         if (rowMaxCombo != null)
             rowMaxCombo.SetMaxCombo(0);
+
+        if (rowScore != null)
+            rowScore.SetScore(0, digits: 7);
     }
 
     public void Retry()
