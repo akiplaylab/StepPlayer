@@ -14,8 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SongLibrary
   songs:
   - songId: dance-mood
+    songName: Dance Mood
     musicClip: {fileID: 8300000, guid: c4c12f28566ea654482a64cb013d652f, type: 3}
     chartFileName: chart.json
   - songId: starry-stella
+    songName: Starry Stella
     musicClip: {fileID: 8300000, guid: 7a8d53f874a23b14297f9dede9aeb354, type: 3}
     chartFileName: chart.json

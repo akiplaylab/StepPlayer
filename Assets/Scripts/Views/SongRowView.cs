@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,7 +21,7 @@ public sealed class SongRowView : MonoBehaviour
         this.owner = owner;
         this.index = index;
 
-        titleText.text = song.songId;
+        titleText.text = string.IsNullOrWhiteSpace(song.songName) ? song.songId : song.songName;
 
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() => owner.OnRowClicked(index));
