@@ -1,0 +1,24 @@
+name: .NET Domain Tests
+
+on:
+  push:
+    branches:
+      - main
+      - codex/**
+      - feature/**
+  pull_request:
+
+jobs:
+  dotnet-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Run domain tests
+        run: dotnet test tests/DDR.Domain.Tests/DDR.Domain.Tests.csproj
