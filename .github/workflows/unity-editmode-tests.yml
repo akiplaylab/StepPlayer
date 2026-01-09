@@ -1,0 +1,22 @@
+name: Unity EditMode Tests
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  editmode-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run EditMode tests
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          unityVersion: 6000.2.6f2
+          testMode: editmode
+          cache: true
