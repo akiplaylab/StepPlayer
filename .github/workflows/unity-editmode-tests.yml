@@ -7,6 +7,7 @@ on:
 
 jobs:
   editmode-tests:
+    if: ${{ secrets.UNITY_LICENSE != '' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -20,3 +21,10 @@ jobs:
           unityVersion: 6000.2.6f2
           testMode: editmode
           cache: true
+
+  missing-unity-license:
+    if: ${{ secrets.UNITY_LICENSE == '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Skip Unity tests without license
+        run: echo "UNITY_LICENSE secret is not set; skipping EditMode tests."
