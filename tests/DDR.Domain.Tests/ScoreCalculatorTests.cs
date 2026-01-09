@@ -1,4 +1,7 @@
+using DDR.Domain;
 using NUnit.Framework;
+
+namespace DDR.Domain.Tests;
 
 public class ScoreCalculatorTests
 {

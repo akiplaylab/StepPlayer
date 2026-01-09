@@ -30,3 +30,12 @@ All source code in this repository is released under the CC0 1.0 Universal licen
   - Original composition by a collaborator
   - Released under a CC0-equivalent license
   - Attribution is appreciated but not required
+
+## Testing
+
+This project splits tests between the .NET domain logic and Unity integration checks:
+
+- **.NET domain logic**: run with `dotnet test tests/DDR.Domain.Tests/DDR.Domain.Tests.csproj`.
+- **Unity integration**: run EditMode tests via the Unity Test Runner (or the Unity CI workflow).
+
+The .NET tests cover the core scoring logic, while Unity tests only verify the thin adapter layer.

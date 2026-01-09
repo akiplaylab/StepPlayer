@@ -1,5 +1,4 @@
-﻿<Solution>
-  <Project Path="Assembly-CSharp.csproj" />
-  <Project Path="DDR.Domain.Runtime.csproj" />
-  <Project Path="DDR.Domain.Tests.EditMode.csproj" />
+<Solution>
+  <Project Path="src/DDR.Domain/DDR.Domain.csproj" />
+  <Project Path="tests/DDR.Domain.Tests/DDR.Domain.Tests.csproj" />
 </Solution>
