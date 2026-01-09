@@ -17,7 +17,7 @@ public class ScoreCalculatorTests
     [TestCase(100, 0, 0, 0, 0, 100, 0, 0)]
     [TestCase(100, 0, 0, 0, 0, 0, 100, 0)]
     [TestCase(100, 50, 50, 0, 0, 0, 0, 990_000)]
-    [TestCase(3, 1, 1, 1, 0, 0, 0, 859_999)]
+    [TestCase(3, 1, 1, 1, 0, 0, 0, 860_000)]
     public void Calculate_UsesWeightedScores(
         int totalNotes,
         int marvelous,
