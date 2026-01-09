@@ -7,17 +7,21 @@ public static class ScoreCalculator
         if (totalNotes <= 0)
             return 0;
 
-        double basePoint = (double)MaxScore / totalNotes;
+        int basePoint = MaxScore / totalNotes;
+        basePoint = (basePoint / 10) * 10;
 
-        double weighted =
-            marvelous * 1.00 +
-            perfect * 0.98 +
-            great * 0.60 +
-            good * 0.20 +
-            bad * 0.00 +
-            miss * 0.00;
+        int marvelousScore = basePoint;
+        int perfectScore = basePoint - 10;
+        int greatScore = (basePoint * 60 / 100) - 10;
+        int goodScore = (basePoint * 20 / 100) - 10;
 
-        return (int)(basePoint * weighted);
+        return
+            marvelous * marvelousScore +
+            perfect * perfectScore +
+            great * greatScore +
+            good * goodScore +
+            bad * 0 +
+            miss * 0;
     }
 
     public static string GetDanceLevel(int score, bool failed = false)
