@@ -6,7 +6,6 @@ on:
       - main
       - codex/**
       - feature/**
-  pull_request:
 
 jobs:
   dotnet-tests:
