@@ -13,5 +13,9 @@
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
-    "noEngineReferences": false
+    "noEngineReferences": false,
+    "testAssemblies": true,
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ]
 }
