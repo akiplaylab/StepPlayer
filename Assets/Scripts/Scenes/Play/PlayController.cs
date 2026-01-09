@@ -309,6 +309,6 @@ public sealed class PlayController : MonoBehaviour
             ResultStore.MusicSource = currentSong.musicSource.ToString();
         }
 
-        SceneManager.LoadScene("ResultScene");
+        SceneManager.LoadScene("Result");
     }
 }

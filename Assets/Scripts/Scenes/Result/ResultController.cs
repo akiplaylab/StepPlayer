@@ -87,6 +87,6 @@ public sealed class ResultController : MonoBehaviour
     public void GoToSongSelect()
     {
         ResultStore.Clear();
-        SceneManager.LoadScene("SongSelectScene");
+        SceneManager.LoadScene("SongSelect");
     }
 }
