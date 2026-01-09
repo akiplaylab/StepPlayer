@@ -1,5 +1,5 @@
 {
-  "name": "Tests.EditMode",
+  "name": "DDR.Domain.Tests.EditMode",
   "references": [
     "DDR.Domain.Runtime"
   ],

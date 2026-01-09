@@ -1,5 +1,5 @@
 ﻿<Solution>
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="DDR.Domain.Runtime.csproj" />
-  <Project Path="Tests.EditMode.csproj" />
+  <Project Path="DDR.Domain.Tests.EditMode.csproj" />
 </Solution>
