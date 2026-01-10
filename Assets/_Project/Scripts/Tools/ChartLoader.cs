@@ -276,6 +276,29 @@ public static class ChartLoader
         return NoteDivision.Sixteenth;
     }
 
-    readonly record struct BeatNote(double Beat, Lane Lane, NoteDivision Division);
-    readonly record struct BpmChange(double Beat, double Bpm);
+    readonly struct BeatNote
+    {
+        public readonly double Beat;
+        public readonly Lane Lane;
+        public readonly NoteDivision Division;
+
+        public BeatNote(double beat, Lane lane, NoteDivision division)
+        {
+            Beat = beat;
+            Lane = lane;
+            Division = division;
+        }
+    }
+
+    readonly struct BpmChange
+    {
+        public readonly double Beat;
+        public readonly double Bpm;
+
+        public BpmChange(double beat, double bpm)
+        {
+            Beat = beat;
+            Bpm = bpm;
+        }
+    }
 }
