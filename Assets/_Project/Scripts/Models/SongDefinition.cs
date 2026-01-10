@@ -13,4 +13,6 @@ public sealed class SongDefinition
     public MusicSource musicSource = MusicSource.Original;
 
     public string chartFileName = "chart.json";
+
+    public ChartDifficulty chartDifficulty = ChartDifficulty.Beginner;
 }

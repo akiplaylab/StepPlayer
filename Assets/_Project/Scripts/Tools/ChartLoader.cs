@@ -9,13 +9,13 @@ public static class ChartLoader
 {
     const int MaxSupportedBpm = 1000;
 
-    public static Chart LoadFromStreamingAssets(string fileName)
+    public static Chart LoadFromStreamingAssets(string fileName, ChartDifficulty difficulty)
     {
         var path = Path.Combine(Application.streamingAssetsPath, fileName);
         var extension = Path.GetExtension(fileName).ToLowerInvariant();
 
         return extension is ".sm" or ".ssc"
-            ? LoadFromSm(path)
+            ? LoadFromSm(path, difficulty)
             : LoadFromJson(path);
     }
 
@@ -72,7 +72,7 @@ public static class ChartLoader
         return new Chart(raw.musicFile, raw.bpm, raw.offsetSec, ordered);
     }
 
-    static Chart LoadFromSm(string path)
+    static Chart LoadFromSm(string path, ChartDifficulty difficulty)
     {
         var content = File.ReadAllText(path);
         var tags = ParseSmTags(content);
@@ -80,7 +80,7 @@ public static class ChartLoader
         var music = GetFirstTag(tags, "MUSIC");
         var offset = ParseDouble(GetFirstTag(tags, "OFFSET"), 0.0);
         var bpmChanges = ParseBpms(GetFirstTag(tags, "BPMS"));
-        var noteData = GetNotesData(tags);
+        var noteData = GetNotesData(tags, difficulty);
 
         if (bpmChanges.Count == 0)
             bpmChanges.Add(new BpmChange(0, 120));
@@ -139,10 +139,12 @@ public static class ChartLoader
         return tags.TryGetValue(name, out var list) && list.Count > 0 ? list[0] : string.Empty;
     }
 
-    static string GetNotesData(Dictionary<string, List<string>> tags)
+    static string GetNotesData(Dictionary<string, List<string>> tags, ChartDifficulty difficulty)
     {
         if (!tags.TryGetValue("NOTES", out var list))
             throw new InvalidDataException("No NOTES section found in simfile.");
+
+        var difficultyName = DifficultyToSmName(difficulty);
 
         foreach (var entry in list)
         {
@@ -150,11 +152,19 @@ public static class ChartLoader
             if (parts.Length < 6) continue;
 
             var stepType = parts[0].Trim();
-            if (stepType.Equals("dance-single", StringComparison.OrdinalIgnoreCase))
+            var entryDifficulty = parts[2].Trim();
+
+            if (stepType.Equals("dance-single", StringComparison.OrdinalIgnoreCase)
+                && entryDifficulty.Equals(difficultyName, StringComparison.OrdinalIgnoreCase))
                 return parts[5];
         }
 
-        var fallback = list.FirstOrDefault();
+        var fallback = list.FirstOrDefault(entry =>
+        {
+            var parts = entry.Split(new[] { ':' }, 6);
+            return parts.Length >= 6
+                && parts[0].Trim().Equals("dance-single", StringComparison.OrdinalIgnoreCase);
+        }) ?? list.FirstOrDefault();
         if (fallback == null)
             throw new InvalidDataException("No NOTES section found in simfile.");
 
@@ -274,6 +284,19 @@ public static class ChartLoader
             return NoteDivision.Eighth;
 
         return NoteDivision.Sixteenth;
+    }
+
+    static string DifficultyToSmName(ChartDifficulty difficulty)
+    {
+        return difficulty switch
+        {
+            ChartDifficulty.Beginner => "Beginner",
+            ChartDifficulty.Easy => "Easy",
+            ChartDifficulty.Medium => "Medium",
+            ChartDifficulty.Hard => "Hard",
+            ChartDifficulty.Challenge => "Challenge",
+            _ => "Beginner",
+        };
     }
 
     readonly struct BeatNote
