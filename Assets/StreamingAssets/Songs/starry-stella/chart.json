@@ -1,7 +1,7 @@
 {
     "musicFile": "starry-stella.mp3",
     "bpm": 170,
-    "offsetSec": 0.08,
+    "offsetSec": 0.0,
     "measures": [
         {
             "subdiv": 16,

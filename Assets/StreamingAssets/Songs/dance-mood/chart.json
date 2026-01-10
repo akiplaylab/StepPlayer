@@ -1,7 +1,7 @@
 {
     "musicFile": "dance-mood.mp3",
     "bpm": 123,
-    "offsetSec": 0.581,
+    "offsetSec": 0.501,
     "measures": [
         {
             "subdiv": 16,
