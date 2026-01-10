@@ -48,6 +48,7 @@ public sealed class PlayController : MonoBehaviour
     ChartRecorder recorder;
     NoteViewPool notePool;
     double dspStartTime;
+    double outputLatencySec;
     int nextSpawnIndex;
     bool isEnding;
     float initialVolume;
@@ -102,12 +103,15 @@ public sealed class PlayController : MonoBehaviour
         while (song.musicClip.loadState == AudioDataLoadState.Loading)
             yield return null;
 
+        AudioSettings.GetDSPBufferSize(out var bufferLength, out var numBuffers);
+        outputLatencySec = (double)bufferLength * numBuffers / AudioSettings.outputSampleRate;
+
         dspStartTime = AudioSettings.dspTime + 0.2;
         audioSource.PlayScheduled(dspStartTime);
 
         nextSpawnIndex = 0;
 
-        Debug.Log($"Loaded song: {song.songId}, notes: {chart.Notes.Count}, offset: {chart.OffsetSec:0.###}, bpm: {chart.Bpm:0.###}");
+        Debug.Log($"Loaded song: {song.songId}, notes: {chart.Notes.Count}, offset: {chart.OffsetSec:0.###}, bpm: {chart.Bpm:0.###}, outputLatency: {outputLatencySec:0.###}");
     }
 
     void Update()
@@ -156,7 +160,7 @@ public sealed class PlayController : MonoBehaviour
     }
 
     double GetSongTimeSec()
-    => (AudioSettings.dspTime - dspStartTime) - chart.OffsetSec;
+    => (AudioSettings.dspTime - dspStartTime) - chart.OffsetSec - outputLatencySec;
 
     void SpawnNotes(double songTime)
     {
