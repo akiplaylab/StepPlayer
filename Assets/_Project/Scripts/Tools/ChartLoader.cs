@@ -210,13 +210,6 @@ public static class ChartLoader
             : fallback;
     }
 
-    static NoteDivision DivisionFromRow(int row)
-    {
-        if (row % 4 == 0) return NoteDivision.Quarter;
-        if (row % 2 == 0) return NoteDivision.Eighth;
-        return NoteDivision.Sixteenth;
-    }
-
     static NoteDivision DivisionFromRow(int row, int rowsPerMeasure)
     {
         if (rowsPerMeasure <= 0)
