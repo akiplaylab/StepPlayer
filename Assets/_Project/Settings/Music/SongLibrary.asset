@@ -17,9 +17,11 @@ MonoBehaviour:
     songName: Dance Mood
     musicClip: {fileID: 8300000, guid: c4c12f28566ea654482a64cb013d652f, type: 3}
     musicSource: 1
-    chartFileName: chart.json
+    chartFileName: Dance Mood.sm
+    chartDifficulty: 0
   - songId: starry-stella
     songName: Starry Stella
     musicClip: {fileID: 8300000, guid: 7a8d53f874a23b14297f9dede9aeb354, type: 3}
     musicSource: 0
-    chartFileName: chart.json
+    chartFileName: Starry Stella.sm
+    chartDifficulty: 0

@@ -89,7 +89,7 @@ public sealed class PlayController : MonoBehaviour
 
         var chartRelativePath = Path.Combine("Songs", song.songId, song.chartFileName);
 
-        chart = ChartLoader.LoadFromStreamingAssets(chartRelativePath);
+        chart = ChartLoader.LoadFromStreamingAssets(chartRelativePath, song.chartDifficulty);
 
         recorder = new ChartRecorder(enableRecording, recordedFileName, recordSubdiv);
 
