@@ -38,6 +38,7 @@ public sealed class PlayController : MonoBehaviour
     [Header("Judgement")]
     [SerializeField] Judge judge;
     [SerializeField] ComboTextPresenter comboText;
+    [SerializeField] JudgementStyle judgementStyle;
 
     [SerializeField] float endFadeOutSec = 0.4f;
 
@@ -229,7 +230,7 @@ public sealed class PlayController : MonoBehaviour
         {
             counter.Record(judgement.Judgement);
             list.RemoveFirst();
-            notePool.Return(note);
+            PlayBurstAndReturn(note, judgement.Judgement);
             UpdateComboDisplay();
         }
     }
@@ -247,7 +248,7 @@ public sealed class PlayController : MonoBehaviour
                 counter.RecordMiss();
                 Debug.Log($"{lane}: Miss (late)");
                 list.RemoveFirst();
-                notePool.Return(n);
+                PlayBurstAndReturn(n, Judgement.Miss);
 
                 UpdateComboDisplay();
             }
@@ -274,6 +275,18 @@ public sealed class PlayController : MonoBehaviour
     void UpdateComboDisplay()
     {
         comboText?.Show(counter.CurrentCombo);
+    }
+
+    void PlayBurstAndReturn(NoteView note, Judgement judgement)
+    {
+        var style = judgementStyle != null ? judgementStyle : judge?.Style;
+        if (style == null)
+        {
+            notePool.Return(note);
+            return;
+        }
+
+        note.PlayHitBurst(style.GetColor(judgement), () => notePool.Return(note));
     }
 
     public void EndToResult()

@@ -17,6 +17,7 @@ public sealed class Judge
     [SerializeField] JudgementStyle style;
 
     public float MissWindow => miss;
+    public JudgementStyle Style => style;
 
     public JudgementOutcome JudgeHit(Lane lane, double dt)
     {
