@@ -19,6 +19,7 @@ public sealed class PlayController : MonoBehaviour
     [SerializeField] NoteView notePrefab;
     [SerializeField] Transform spawnY;
     [SerializeField] Transform judgeLineY;
+    [SerializeField] Transform missDespawnY;
     [SerializeField] float travelTimeSec = 1.5f;
 
     [Header("Lane X positions (Left, Down, Up, Right)")]
@@ -191,7 +192,8 @@ public sealed class PlayController : MonoBehaviour
             foreach (var n in active[lane])
             {
                 var t = (float)((n.TimeSec - songTime) / travelTimeSec);
-                var y = Mathf.Lerp(judgeLineY.position.y, spawnY.position.y, Mathf.Clamp01(t));
+                var clampedT = Mathf.Min(1f, t);
+                var y = Mathf.Lerp(judgeLineY.position.y, spawnY.position.y, clampedT);
                 var x = GetLaneX(lane);
                 n.transform.position = new Vector3(x, y, 0);
             }
@@ -213,13 +215,19 @@ public sealed class PlayController : MonoBehaviour
         recorder.OnKeyPressed(lane, songTime);
 
         var list = active[lane];
-        if (list.First == null)
+        var node = list.First;
+        while (node != null && node.Value.IsMissed)
+        {
+            node = node.Next;
+        }
+
+        if (node == null)
         {
             Debug.Log($"{lane}: 空振り");
             return;
         }
 
-        var note = list.First.Value;
+        var note = node.Value;
         var dt = Math.Abs(note.TimeSec - songTime);
 
         var judgement = judge.JudgeHit(lane, dt);
@@ -228,7 +236,7 @@ public sealed class PlayController : MonoBehaviour
         if (judgement.ShouldConsumeNote)
         {
             counter.Record(judgement.Judgement);
-            list.RemoveFirst();
+            list.Remove(node);
             notePool.Return(note);
             UpdateComboDisplay();
         }
@@ -239,19 +247,56 @@ public sealed class PlayController : MonoBehaviour
         foreach (var lane in active.Keys.ToArray())
         {
             var list = active[lane];
-            while (list.First != null)
+            var node = list.First;
+            while (node != null)
             {
-                var n = list.First.Value;
+                var n = node.Value;
+                if (n.IsMissed)
+                {
+                    node = node.Next;
+                    continue;
+                }
+
                 if (songTime <= n.TimeSec + judge.MissWindow) break;
 
+                n.MarkMissed();
                 counter.RecordMiss();
                 Debug.Log($"{lane}: Miss (late)");
-                list.RemoveFirst();
-                notePool.Return(n);
-
                 UpdateComboDisplay();
+                node = node.Next;
             }
         }
+
+        CleanupOffscreenNotes();
+    }
+
+    void CleanupOffscreenNotes()
+    {
+        var despawnY = GetMissDespawnY();
+        foreach (var lane in active.Keys.ToArray())
+        {
+            var list = active[lane];
+            var node = list.First;
+            while (node != null)
+            {
+                var next = node.Next;
+                if (node.Value.transform.position.y <= despawnY)
+                {
+                    list.Remove(node);
+                    notePool.Return(node.Value);
+                }
+                node = next;
+            }
+        }
+    }
+
+    float GetMissDespawnY()
+    {
+        if (missDespawnY != null)
+            return missDespawnY.position.y;
+
+        var distance = spawnY.position.y - judgeLineY.position.y;
+        return judgeLineY.position.y - distance;
     }
 
     float GetLaneX(Lane lane)

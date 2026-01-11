@@ -5,6 +5,7 @@ public sealed class NoteView : MonoBehaviour
     public Lane Lane { get; private set; }
     public double TimeSec { get; private set; }
     public NoteDivision Division { get; private set; }
+    public bool IsMissed { get; private set; }
 
     [Header("Division Colors")]
     [SerializeField] Color quarterColor = Color.red;
@@ -18,9 +19,15 @@ public sealed class NoteView : MonoBehaviour
         Lane = note.Lane;
         TimeSec = note.TimeSec;
         Division = note.Division;
+        IsMissed = false;
 
         ApplyRotation();
         ApplyColor();
+    }
+
+    public void MarkMissed()
+    {
+        IsMissed = true;
     }
 
     void OnValidate()
