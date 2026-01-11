@@ -16,13 +16,13 @@ public sealed class SongRowView : MonoBehaviour
     int index;
     SongSelectController owner;
 
-    public void Bind(SongSelectController owner, int index, SongDefinition song)
+    public void Bind(SongSelectController owner, int index, SongMeta song)
     {
         this.owner = owner;
         this.index = index;
 
-        titleText.text = string.IsNullOrWhiteSpace(song.songName) ? song.songId : song.songName;
-        sourceText.text = song.musicSource.ToString();
+        titleText.text = song.DisplayTitle;
+        sourceText.text = string.IsNullOrWhiteSpace(song.Artist) ? string.Empty : song.Artist;
 
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() => owner.OnRowClicked(index));

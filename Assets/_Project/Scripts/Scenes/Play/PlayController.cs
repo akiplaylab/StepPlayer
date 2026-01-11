@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 public sealed class PlayController : MonoBehaviour
 {
     [Header("Song Select")]
-    [SerializeField] SongLibrary library;
+    [SerializeField] StreamingAssetLoader loader;
     [SerializeField] int fallbackSongIndex = 0;
 
     [Header("Audio")]
@@ -53,7 +53,7 @@ public sealed class PlayController : MonoBehaviour
     bool isEnding;
     float initialVolume;
     double chartFinishedAtSongTime = double.NaN;
-    SongDefinition currentSong;
+    SongMeta currentSong;
 
     readonly JudgementCounter counter = new();
 
@@ -76,31 +76,36 @@ public sealed class PlayController : MonoBehaviour
         counter.Reset();
         UpdateComboDisplay();
 
-        var song = (SelectedSong.Value ?? (library != null ? library.Get(fallbackSongIndex) : null))
-            ?? throw new InvalidOperationException("No song selected and no fallback song available (SongLibrary missing or empty).");
-
-        if (string.IsNullOrWhiteSpace(song.songId))
-            throw new InvalidOperationException("SongDefinition.songId が空です。");
+        var song = SelectedSong.Value ?? GetFallbackSong();
+        if (song == null)
+            throw new InvalidOperationException("No song selected and no fallback song available (catalog empty).");
 
         currentSong = song;
 
-        if (song.musicClip == null)
-            throw new InvalidOperationException($"SongDefinition.musicClip が未設定です: {song.songId}");
+        if (loader == null)
+            loader = GetComponent<StreamingAssetLoader>();
+        if (loader == null)
+            loader = gameObject.AddComponent<StreamingAssetLoader>();
 
-        var chartRelativePath = Path.Combine("Songs", song.songId, song.chartFileName);
+        if (song.MusicClip == null)
+            yield return loader.LoadAudioClip(song, clip => song.MusicClip = clip);
 
-        chart = ChartLoader.LoadFromStreamingAssets(chartRelativePath, song.chartDifficulty);
+        if (song.MusicClip == null)
+            throw new InvalidOperationException($"SongMeta.MusicClip が未設定です: {song.SmFilePath}");
+
+        var chartRelativePath = GetRelativeStreamingAssetsPath(song.SmFilePath);
+        chart = ChartLoader.LoadFromStreamingAssets(chartRelativePath, song.ChartDifficulty);
 
         recorder = new ChartRecorder(enableRecording, recordedFileName, recordSubdiv);
 
-        audioSource.clip = song.musicClip;
+        audioSource.clip = song.MusicClip;
 
         initialVolume = audioSource != null ? audioSource.volume : 1f;
 
-        if (!song.musicClip.preloadAudioData)
-            song.musicClip.LoadAudioData();
+        if (!song.MusicClip.preloadAudioData)
+            song.MusicClip.LoadAudioData();
 
-        while (song.musicClip.loadState == AudioDataLoadState.Loading)
+        while (song.MusicClip.loadState == AudioDataLoadState.Loading)
             yield return null;
 
         AudioSettings.GetDSPBufferSize(out var bufferLength, out var numBuffers);
@@ -111,7 +116,7 @@ public sealed class PlayController : MonoBehaviour
 
         nextSpawnIndex = 0;
 
-        Debug.Log($"Loaded song: {song.songId}, notes: {chart.Notes.Count}, offset: {chart.OffsetSec:0.###}, bpm: {chart.Bpm:0.###}, outputLatency: {outputLatencySec:0.###}");
+        Debug.Log($"Loaded song: {song.DisplayTitle}, notes: {chart.Notes.Count}, offset: {chart.OffsetSec:0.###}, bpm: {chart.Bpm:0.###}, outputLatency: {outputLatencySec:0.###}");
     }
 
     void Update()
@@ -307,12 +312,30 @@ public sealed class PlayController : MonoBehaviour
         ResultStore.HasSummary = true;
         if (currentSong != null)
         {
-            ResultStore.SongTitle = string.IsNullOrWhiteSpace(currentSong.songName)
-                ? currentSong.songId
-                : currentSong.songName;
-            ResultStore.MusicSource = currentSong.musicSource.ToString();
+            ResultStore.SongTitle = currentSong.DisplayTitle;
+            ResultStore.MusicSource = string.IsNullOrWhiteSpace(currentSong.Artist) ? string.Empty : currentSong.Artist;
         }
 
         SceneManager.LoadScene("Result");
+    }
+
+    SongMeta GetFallbackSong()
+    {
+        var songs = SongCatalog.BuildCatalog();
+        if (songs.Count == 0) return null;
+        var index = Mathf.Clamp(fallbackSongIndex, 0, songs.Count - 1);
+        return songs[index];
+    }
+
+    static string GetRelativeStreamingAssetsPath(string fullPath)
+    {
+        var root = Application.streamingAssetsPath;
+        if (fullPath.StartsWith(root, StringComparison.OrdinalIgnoreCase))
+        {
+            var relative = fullPath.Substring(root.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            return relative;
+        }
+
+        return fullPath;
     }
 }

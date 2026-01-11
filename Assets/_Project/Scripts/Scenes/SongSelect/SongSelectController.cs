@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public sealed class SongSelectController : MonoBehaviour
 {
-    [SerializeField] SongLibrary library;
+    [SerializeField] StreamingAssetLoader loader;
 
     [Header("UI")]
     [SerializeField] RectTransform listRoot;
@@ -48,8 +48,11 @@ public sealed class SongSelectController : MonoBehaviour
     bool isTransitioning = false;
     Coroutine previewCoroutine;
 
-    void Start()
+    List<SongMeta> songs = new();
+
+    IEnumerator Start()
     {
+        yield return BuildCatalogAndLoadAssets();
         BuildList();
         PreloadNearbyPreviewAudio(selectedIndex);
         PlayPreview();
@@ -71,6 +74,28 @@ public sealed class SongSelectController : MonoBehaviour
         ApplyReelLayout();
     }
 
+    IEnumerator BuildCatalogAndLoadAssets()
+    {
+        songs = SongCatalog.BuildCatalog();
+
+        if (loader == null)
+            loader = GetComponent<StreamingAssetLoader>();
+        if (loader == null)
+            loader = gameObject.AddComponent<StreamingAssetLoader>();
+
+        for (int i = 0; i < songs.Count; i++)
+        {
+            var song = songs[i];
+            yield return loader.LoadAudioClip(song, clip => song.MusicClip = clip);
+
+            if (!string.IsNullOrWhiteSpace(song.BannerFile))
+                yield return loader.LoadTexture(song.SmFilePath, "#BANNER", song.SongDirPath, song.BannerFile, tex => song.BannerTexture = tex);
+
+            if (!string.IsNullOrWhiteSpace(song.BackgroundFile))
+                yield return loader.LoadTexture(song.SmFilePath, "#BACKGROUND", song.SongDirPath, song.BackgroundFile, tex => song.BackgroundTexture = tex);
+        }
+    }
+
     void BuildList()
     {
         rows.Clear();
@@ -80,10 +105,10 @@ public sealed class SongSelectController : MonoBehaviour
         for (int i = listRoot.childCount - 1; i >= 0; i--)
             Destroy(listRoot.GetChild(i).gameObject);
 
-        for (int i = 0; i < library.Count; i++)
+        for (int i = 0; i < songs.Count; i++)
         {
             var row = Instantiate(rowPrefab, listRoot);
-            row.Bind(this, i, library.Songs[i]);
+            row.Bind(this, i, songs[i]);
 
             rows.Add(row);
 
@@ -175,7 +200,7 @@ public sealed class SongSelectController : MonoBehaviour
 
         StopPreview();
 
-        var song = library.Get(index);
+        var song = GetSong(index);
         if (song == null)
         {
             isTransitioning = false;
@@ -209,20 +234,20 @@ public sealed class SongSelectController : MonoBehaviour
         if (previewCoroutine != null)
             StopCoroutine(previewCoroutine);
 
-        var song = library.Get(selectedIndex);
-        if (song == null || previewSource == null || song.musicClip == null)
+        var song = GetSong(selectedIndex);
+        if (song == null || previewSource == null || song.MusicClip == null)
             return;
 
         previewCoroutine = StartCoroutine(PlayPreviewCoroutine(song));
     }
 
-    IEnumerator PlayPreviewCoroutine(SongDefinition song)
+    IEnumerator PlayPreviewCoroutine(SongMeta song)
     {
         previewSource.Stop();
 
         yield return null;
 
-        var clip = song.musicClip;
+        var clip = song.MusicClip;
         if (clip == null) yield break;
 
         if (clip.loadState == AudioDataLoadState.Unloaded)
@@ -257,7 +282,7 @@ public sealed class SongSelectController : MonoBehaviour
         }
 
         int start = Mathf.Max(0, centerIndex - preloadRadius);
-        int end = Mathf.Min(library.Count - 1, centerIndex + preloadRadius);
+        int end = Mathf.Min(songs.Count - 1, centerIndex + preloadRadius);
 
         for (int i = start; i <= end; i++)
             PreloadPreviewAudio(i);
@@ -265,14 +290,21 @@ public sealed class SongSelectController : MonoBehaviour
 
     void PreloadPreviewAudio(int index)
     {
-        if (index < 0 || index >= library.Count) return;
+        if (index < 0 || index >= songs.Count) return;
 
-        var song = library.Get(index);
-        if (song == null || song.musicClip == null) return;
+        var song = GetSong(index);
+        if (song == null || song.MusicClip == null) return;
 
-        var clip = song.musicClip;
+        var clip = song.MusicClip;
 
         if (clip.loadState == AudioDataLoadState.Unloaded)
             clip.LoadAudioData();
+    }
+
+    SongMeta GetSong(int index)
+    {
+        if (songs == null || songs.Count == 0) return null;
+        index = Mathf.Clamp(index, 0, songs.Count - 1);
+        return songs[index];
     }
 }
