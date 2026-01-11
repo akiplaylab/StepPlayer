@@ -273,6 +273,7 @@ public sealed class PlayController : MonoBehaviour
     void CleanupOffscreenNotes()
     {
         var despawnY = GetMissDespawnY();
+        var movingUp = spawnY.position.y < judgeLineY.position.y;
         foreach (var lane in active.Keys.ToArray())
         {
             var list = active[lane];
@@ -280,7 +281,9 @@ public sealed class PlayController : MonoBehaviour
             while (node != null)
             {
                 var next = node.Next;
-                if (node.Value.transform.position.y <= despawnY)
+                var y = node.Value.transform.position.y;
+                var shouldDespawn = movingUp ? y >= despawnY : y <= despawnY;
+                if (shouldDespawn)
                 {
                     list.Remove(node);
                     notePool.Return(node.Value);
