@@ -25,9 +25,3 @@ MonoBehaviour:
     musicSource: 0
     chartFileName: Starry Stella.sm
     chartDifficulty: 0
-  - songId: hero
-    songName: HERO
-    musicClip: {fileID: 0}
-    musicSource: 2
-    chartFileName: HERO.sm
-    chartDifficulty: 0
