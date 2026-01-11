@@ -268,13 +268,22 @@ public sealed class SongSelectController : MonoBehaviour
 
         previewSource.clip = clip;
         previewSource.time = startTime;
+        previewSource.loop = previewLength <= 0f;
         previewSource.Play();
 
         if (previewLength > 0f)
         {
-            yield return new WaitForSecondsRealtime(previewLength);
-            if (previewSource != null && previewSource.clip == clip)
-                previewSource.Stop();
+            float endTime = startTime + previewLength;
+            while (previewSource != null && previewSource.clip == clip)
+            {
+                if (!previewSource.isPlaying)
+                    previewSource.Play();
+
+                if (previewSource.time >= endTime)
+                    previewSource.time = startTime;
+
+                yield return null;
+            }
         }
     }
 
