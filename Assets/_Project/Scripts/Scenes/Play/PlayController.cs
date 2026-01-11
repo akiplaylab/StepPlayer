@@ -191,7 +191,7 @@ public sealed class PlayController : MonoBehaviour
             foreach (var n in active[lane])
             {
                 var t = (float)((n.TimeSec - songTime) / travelTimeSec);
-                var y = Mathf.Lerp(judgeLineY.position.y, spawnY.position.y, Mathf.Clamp01(t));
+                var y = Mathf.LerpUnclamped(judgeLineY.position.y, spawnY.position.y, t);
                 var x = GetLaneX(lane);
                 n.transform.position = new Vector3(x, y, 0);
             }
