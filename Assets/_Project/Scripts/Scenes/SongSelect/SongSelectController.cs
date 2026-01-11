@@ -19,6 +19,7 @@ public sealed class SongSelectController : MonoBehaviour
     [Header("Preview")]
     [SerializeField] AudioSource previewSource;
     [SerializeField] float previewStartTimeSec = 0f;
+    [SerializeField] float previewFadeOutSeconds = 0.15f;
 
     [Header("Preview Preload (nearby)")]
     [SerializeField] int preloadRadius = 1;
@@ -271,19 +272,40 @@ public sealed class SongSelectController : MonoBehaviour
         previewSource.loop = previewLength <= 0f;
         previewSource.Play();
 
+        float baseVolume = previewSource.volume;
+
         if (previewLength > 0f)
         {
             float endTime = startTime + previewLength;
             while (previewSource != null && previewSource.clip == clip)
             {
                 if (!previewSource.isPlaying)
+                {
+                    previewSource.volume = baseVolume;
                     previewSource.Play();
+                }
+
+                if (previewFadeOutSeconds > 0f)
+                {
+                    float remaining = endTime - previewSource.time;
+                    if (remaining <= previewFadeOutSeconds)
+                        previewSource.volume = baseVolume * Mathf.Clamp01(remaining / previewFadeOutSeconds);
+                    else
+                        previewSource.volume = baseVolume;
+                }
 
                 if (previewSource.time >= endTime)
+                {
                     previewSource.time = startTime;
+                    previewSource.volume = baseVolume;
+                }
 
                 yield return null;
             }
+        }
+        else if (previewSource != null)
+        {
+            previewSource.volume = baseVolume;
         }
     }
 
