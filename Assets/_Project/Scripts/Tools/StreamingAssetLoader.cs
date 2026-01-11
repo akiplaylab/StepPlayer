@@ -50,7 +50,7 @@ public sealed class StreamingAssetLoader : MonoBehaviour
         }
 
         var uri = new Uri(fullPath).AbsoluteUri;
-        using var request = UnityWebRequestTexture.GetTexture(uri);
+        using var request = UnityWebRequest.Get(uri);
         yield return request.SendWebRequest();
 
         if (request.result != UnityWebRequest.Result.Success)
@@ -60,7 +60,15 @@ public sealed class StreamingAssetLoader : MonoBehaviour
             yield break;
         }
 
-        var texture = DownloadHandlerTexture.GetContent(request);
+        var data = request.downloadHandler.data;
+        var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+        if (!texture.LoadImage(data))
+        {
+            Debug.LogError($"Image decode failed: {smFilePath} tag {tag} file '{fileName}'.");
+            onLoaded?.Invoke(null);
+            yield break;
+        }
+
         onLoaded?.Invoke(texture);
     }
 }
