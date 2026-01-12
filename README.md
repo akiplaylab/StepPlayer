@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository is a **personal research project** focused on studying and recreating gameplay mechanics inspired by rhythm games.
+This repository is a **personal research project** focused on studying and recreating gameplay mechanics.
 
 The purpose of this project is **technical and educational research**, including:
 - rhythm game mechanics
