@@ -215,7 +215,7 @@ public sealed class SongSelectScene : MonoBehaviour
         if (decideSe != null)
             yield return new WaitForSecondsRealtime(decideSe.length);
 
-        SceneManager.LoadScene("Play");
+        SceneManager.LoadScene($"{nameof(PlayScene)}");
     }
 
     void PlayMoveSe()

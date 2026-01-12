@@ -81,12 +81,12 @@ public sealed class ResultScene : MonoBehaviour
     public void Retry()
     {
         ResultStore.Clear();
-        SceneManager.LoadScene("Play");
+        SceneManager.LoadScene($"{nameof(PlayScene)}");
     }
 
     public void GoToSongSelect()
     {
         ResultStore.Clear();
-        SceneManager.LoadScene("SongSelect");
+        SceneManager.LoadScene($"{nameof(SongSelectScene)}");
     }
 }
