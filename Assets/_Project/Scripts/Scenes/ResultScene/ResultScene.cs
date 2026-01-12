@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public sealed class ResultController : MonoBehaviour
+public sealed class ResultScene : MonoBehaviour
 {
     [Header("Rows")]
     [SerializeField] ResultJudgementRowView rowMarvelous;

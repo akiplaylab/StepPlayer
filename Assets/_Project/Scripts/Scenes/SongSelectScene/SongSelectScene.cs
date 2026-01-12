@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public sealed class SongSelectController : MonoBehaviour
+public sealed class SongSelectScene : MonoBehaviour
 {
     [SerializeField] StreamingAssetLoader loader;
 
