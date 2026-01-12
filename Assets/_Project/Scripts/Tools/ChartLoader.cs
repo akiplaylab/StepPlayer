@@ -8,6 +8,7 @@ using UnityEngine;
 public static class ChartLoader
 {
     const int MaxSupportedBpm = 1000;
+    const double DefaultBpm = 60.0;
 
     public static Chart LoadFromStreamingAssets(string fileName, ChartDifficulty difficulty)
     {
@@ -31,7 +32,7 @@ public static class ChartLoader
         var noteData = GetNotesData(tags, difficulty);
 
         if (bpmChanges.Count == 0)
-            bpmChanges.Add(new BpmChange(0, 120));
+            bpmChanges.Add(new BpmChange(0, DefaultBpm));
 
         bpmChanges.Sort((a, b) => a.Beat.CompareTo(b.Beat));
         if (bpmChanges[0].Beat > 0)
@@ -181,7 +182,7 @@ public static class ChartLoader
     static double BeatToSeconds(double beat, List<BpmChange> bpmChanges)
     {
         if (bpmChanges.Count == 0)
-            return beat * 0.5;
+            return beat * 60.0 / DefaultBpm;
 
         double seconds = 0;
         for (int i = 0; i < bpmChanges.Count; i++)
