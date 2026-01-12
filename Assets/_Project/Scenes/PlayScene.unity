@@ -479,7 +479,7 @@ MonoBehaviour:
   notePrefab: {fileID: 422535996257625606, guid: a8809871df1d4744d972c86de5a7a7f5, type: 3}
   spawnY: {fileID: 1098005563}
   judgeLineY: {fileID: 698216054}
-  travelTimeSec: 1.5
+  travelTimeSec: 3
   laneXs:
   - -3
   - -1

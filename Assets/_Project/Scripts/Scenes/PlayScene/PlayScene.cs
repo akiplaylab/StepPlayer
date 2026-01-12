@@ -19,7 +19,7 @@ public sealed class PlayScene : MonoBehaviour
     [SerializeField] NoteView notePrefab;
     [SerializeField] Transform spawnY;
     [SerializeField] Transform judgeLineY;
-    [SerializeField] float travelTimeSec = 1.5f;
+    [SerializeField] float travelTimeSec = 3f;
 
     [Header("Lane X positions (Left, Down, Up, Right)")]
     [SerializeField] float[] laneXs = { -3f, -1f, 1f, 3f };
