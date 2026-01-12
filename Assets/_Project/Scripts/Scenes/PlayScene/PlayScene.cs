@@ -329,7 +329,7 @@ public sealed class PlayScene : MonoBehaviour
             ResultStore.MusicSource = string.IsNullOrWhiteSpace(currentSong.Artist) ? string.Empty : currentSong.Artist;
         }
 
-        SceneManager.LoadScene($"{nameof(ResultScene)}");
+        SceneManager.LoadScene(nameof(ResultScene));
     }
 
     SongMeta GetFallbackSong()
