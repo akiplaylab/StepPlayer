@@ -672,7 +672,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1628435864}
-        m_TargetAssemblyTypeName: ResultController, Assembly-CSharp
+        m_TargetAssemblyTypeName: ResultScene, Assembly-CSharp
         m_MethodName: Retry
         m_Mode: 1
         m_Arguments:
@@ -835,7 +835,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1628435864}
-        m_TargetAssemblyTypeName: ResultController, Assembly-CSharp
+        m_TargetAssemblyTypeName: ResultScene, Assembly-CSharp
         m_MethodName: GoToSongSelect
         m_Mode: 1
         m_Arguments:
@@ -1691,7 +1691,7 @@ GameObject:
   - component: {fileID: 1628435863}
   - component: {fileID: 1628435864}
   m_Layer: 0
-  m_Name: Result
+  m_Name: ResultScene
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1723,7 +1723,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9ae92b0388644924992451c26beb3304, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ResultController
+  m_EditorClassIdentifier: Assembly-CSharp::ResultScene
   rowMarvelous: {fileID: 1990192557}
   rowPerfect: {fileID: 459626564}
   rowGreat: {fileID: 2073408351}

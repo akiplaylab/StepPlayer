@@ -756,7 +756,7 @@ GameObject:
   - component: {fileID: 747265254}
   - component: {fileID: 747265253}
   m_Layer: 0
-  m_Name: SongSelect
+  m_Name: SongSelectScene
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -6,7 +6,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public sealed class PlayController : MonoBehaviour
+public sealed class PlayScene : MonoBehaviour
 {
     [Header("Song Select")]
     [SerializeField] StreamingAssetLoader loader;

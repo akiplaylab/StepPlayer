@@ -14,9 +14,9 @@ public sealed class SongRowView : MonoBehaviour
     [SerializeField] Color selectedColor = new(0.7f, 0.85f, 1f);
 
     int index;
-    SongSelectController owner;
+    SongSelectScene owner;
 
-    public void Bind(SongSelectController owner, int index, SongMeta song)
+    public void Bind(SongSelectScene owner, int index, SongMeta song)
     {
         this.owner = owner;
         this.index = index;
