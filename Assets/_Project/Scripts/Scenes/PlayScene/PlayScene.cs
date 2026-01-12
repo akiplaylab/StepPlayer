@@ -19,7 +19,7 @@ public sealed class PlayScene : MonoBehaviour
     [SerializeField] NoteView notePrefab;
     [SerializeField] Transform spawnY;
     [SerializeField] Transform judgeLineY;
-    [SerializeField] float travelTimeSec = 1.5f;
+    [SerializeField] float scrollSpeed = 1.0f;
 
     [Header("Lane X positions (Left, Down, Up, Right)")]
     [SerializeField] float[] laneXs = { -3f, -1f, 1f, 3f };
@@ -170,6 +170,7 @@ public sealed class PlayScene : MonoBehaviour
 
     void SpawnNotes(double songTime)
     {
+        var travelTimeSec = GetTravelTimeSec();
         while (nextSpawnIndex < chart.Notes.Count)
         {
             var note = chart.Notes[nextSpawnIndex];
@@ -191,12 +192,19 @@ public sealed class PlayScene : MonoBehaviour
         {
             foreach (var n in active[lane])
             {
-                var t = (float)((n.TimeSec - songTime) / travelTimeSec);
-                var y = Mathf.LerpUnclamped(judgeLineY.position.y, spawnY.position.y, t);
+                var remainingTime = (float)(n.TimeSec - songTime);
+                var y = judgeLineY.position.y + (remainingTime * scrollSpeed);
                 var x = GetLaneX(lane);
                 n.transform.position = new Vector3(x, y, 0);
             }
         }
+    }
+
+    float GetTravelTimeSec()
+    {
+        var speed = Mathf.Max(0.001f, scrollSpeed);
+        var distance = spawnY.position.y - judgeLineY.position.y;
+        return distance / speed;
     }
 
     void HandleInput(double songTime)
