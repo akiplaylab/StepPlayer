@@ -1,17 +1,14 @@
-# Dance Dance Revolution
+# StepPlayer
 
 ## Overview
 
-This repository is a **personal research project** focused on studying and recreating gameplay mechanics inspired by *Dance Dance Revolution* (DDR).
+This repository is a **personal research project** focused on studying and recreating gameplay mechanics inspired by rhythm games.
 
 The purpose of this project is **technical and educational research**, including:
 - rhythm game mechanics
 - timing and judgement systems
 - UI/UX experiments
 - audio synchronization techniques
-
-This project is **not affiliated with, endorsed by, or connected to the official *Dance Dance Revolution* series**.
-All trademarks, product names, and references to *Dance Dance Revolution* belong to their respective owners and are used here **for descriptive and research purposes only**.
 
 This repository does **not aim to reproduce the original game**, assets, or commercial experience, but rather to explore rhythm-game design and implementation as an individual study project.
 
