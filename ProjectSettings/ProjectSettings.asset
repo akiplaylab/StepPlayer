@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: DefaultCompany
-  productName: DanceDanceRevolution
+  productName: StepPlayer
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -604,14 +604,14 @@ PlayerSettings:
   editorAssembliesCompatibilityLevel: 1
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: DanceDanceRevolution
+  metroPackageName: StepPlayer
   metroPackageVersion: 
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
-  metroApplicationDescription: DanceDanceRevolution
+  metroApplicationDescription: StepPlayer
   wsaImages: {}
   metroTileShortName: 
   metroTileShowName: 0
@@ -685,7 +685,7 @@ PlayerSettings:
   cloudProjectId: 492d2749-e130-499d-9ed2-1dc3d2e8c0ac
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: DanceDanceRevolution
+  projectName: StepPlayer
   organizationId: unity_62b91d04eaed8f069d6b
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0

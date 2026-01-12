@@ -1470,9 +1470,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81448212483243eba06c68786a429f05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RazerChromaController
-  appTitle: DanceDanceRevolution
+  appTitle: StepPlayer
   appDescription: Light up Razer Chroma devices on judgements.
-  authorName: DanceDanceRevolution
+  authorName: StepPlayer
   authorContact: https://developer.razer.com/chroma
   flashDuration: 0.08
   offColor: {r: 0, g: 0, b: 0, a: 1}
