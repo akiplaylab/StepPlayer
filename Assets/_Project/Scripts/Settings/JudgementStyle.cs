@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(menuName = "DDR/Settings/Judgement Style", fileName = "JudgementStyle")]
+[CreateAssetMenu(menuName = "StepPlayer/Settings/Judgement Style", fileName = "JudgementStyle")]
 public sealed class JudgementStyle : ScriptableObject
 {
     [Header("Colors")]

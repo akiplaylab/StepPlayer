@@ -9,9 +9,9 @@ using ChromaSDK;
 public sealed class RazerChromaController : MonoBehaviour
 {
     [Header("Chroma App Info")]
-    [SerializeField] string appTitle = "DanceDanceRevolution";
+    [SerializeField] string appTitle = "StepPlayer";
     [SerializeField] string appDescription = "Light up Razer Chroma devices on judgements.";
-    [SerializeField] string authorName = "DanceDanceRevolution";
+    [SerializeField] string authorName = "StepPlayer";
     [SerializeField] string authorContact = "https://developer.razer.com/chroma";
 
     [Header("Flash Settings")]
