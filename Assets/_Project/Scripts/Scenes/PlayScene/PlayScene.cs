@@ -24,11 +24,6 @@ public sealed class PlayScene : MonoBehaviour
     [Header("Lane X positions (Left, Down, Up, Right)")]
     [SerializeField] float[] laneXs = { -3f, -1f, 1f, 3f };
 
-    [Header("Recording")]
-    [SerializeField] bool enableRecording = true;
-    [SerializeField] string recordedFileName = "chart_recorded.json";
-    [SerializeField] int recordSubdiv = 16;
-
     [Header("Receptor Effects (fixed lanes)")]
     [SerializeField] ReceptorHitEffect leftFx;
     [SerializeField] ReceptorHitEffect downFx;
@@ -46,7 +41,6 @@ public sealed class PlayScene : MonoBehaviour
     [SerializeField] float endWhenChartFinishedDelaySec = 0.8f;
 
     Chart chart;
-    ChartRecorder recorder;
     NoteViewPool notePool;
     double dspStartTime;
     double outputLatencySec;
@@ -97,8 +91,6 @@ public sealed class PlayScene : MonoBehaviour
         var chartRelativePath = GetRelativeStreamingAssetsPath(song.SmFilePath);
         chart = ChartLoader.LoadFromStreamingAssets(chartRelativePath, song.ChartDifficulty);
 
-        recorder = new ChartRecorder(enableRecording, recordedFileName, recordSubdiv);
-
         audioSource.clip = song.MusicClip;
 
         initialVolume = audioSource != null ? audioSource.volume : 1f;
@@ -133,7 +125,6 @@ public sealed class PlayScene : MonoBehaviour
         SpawnNotes(songTime);
         UpdateNotePositions(songTime);
 
-        recorder.UpdateHotkeys(chart);
         HandleInput(songTime);
 
         CleanupMissed(songTime);
@@ -210,8 +201,6 @@ public sealed class PlayScene : MonoBehaviour
     void TryHit(Lane lane, bool pressed, double songTime)
     {
         if (!pressed) return;
-
-        recorder.OnKeyPressed(lane, songTime);
 
         var list = active[lane];
         if (list.First == null)
