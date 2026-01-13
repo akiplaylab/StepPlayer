@@ -83,7 +83,7 @@ public sealed class NoteView : MonoBehaviour
             NoteDivision.Quarter => quarterColor,
             NoteDivision.Eighth => eighthColor,
             NoteDivision.Sixteenth => sixteenthColor,
-            _ => otherDivisionColor, // hidari midori
+            _ => otherDivisionColor,
         };
     }
 
@@ -91,19 +91,15 @@ public sealed class NoteView : MonoBehaviour
     {
         const double eps = 0.0001;
 
-        // 4分音符
         if (Math.Abs(beat % 1.0) < eps)
             return NoteDivision.Quarter;
 
-        // 8分音符
         if (Math.Abs(beat % 0.5) < eps)
             return NoteDivision.Eighth;
 
-        // 16分音符
         if (Math.Abs(beat % 0.25) < eps)
             return NoteDivision.Sixteenth;
 
-        // それ以外（3連符・32分・24分など）
         return NoteDivision.Other;
     }
 
