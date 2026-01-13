@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+[RequireComponent(typeof(StreamingAssetLoader))]
 public sealed class SongSelectScene : MonoBehaviour
 {
-    [SerializeField] StreamingAssetLoader loader;
+    StreamingAssetLoader loader;
 
     [Header("UI")]
     [SerializeField] RectTransform listRoot;
@@ -51,6 +52,11 @@ public sealed class SongSelectScene : MonoBehaviour
 
     List<SongMeta> songs = new();
 
+    void Awake()
+    {
+        loader = GetComponent<StreamingAssetLoader>();
+    }
+
     IEnumerator Start()
     {
         yield return BuildCatalogAndLoadAssets();
@@ -78,11 +84,6 @@ public sealed class SongSelectScene : MonoBehaviour
     IEnumerator BuildCatalogAndLoadAssets()
     {
         songs = SongCatalog.BuildCatalog();
-
-        if (loader == null)
-            loader = GetComponent<StreamingAssetLoader>();
-        if (loader == null)
-            loader = gameObject.AddComponent<StreamingAssetLoader>();
 
         for (int i = 0; i < songs.Count; i++)
         {

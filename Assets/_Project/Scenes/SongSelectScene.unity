@@ -259,6 +259,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -755,6 +756,7 @@ GameObject:
   m_Component:
   - component: {fileID: 747265254}
   - component: {fileID: 747265253}
+  - component: {fileID: 747265255}
   m_Layer: 0
   m_Name: SongSelectScene
   m_TagString: Untagged
@@ -774,7 +776,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a785c09105ce9f244ae9d54cf840a4f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SelectMusicController
-  library: {fileID: 11400000, guid: 93db53153382d5c4d88c9b27de41f902, type: 2}
   listRoot: {fileID: 1079177314}
   rowPrefab: {fileID: 2129455114176166396, guid: d7cd85c02e9c36e44be2e5fccbe0d5e9, type: 3}
   seSource: {fileID: 478793451}
@@ -782,6 +783,7 @@ MonoBehaviour:
   decideSe: {fileID: 8300000, guid: 101a29bc01b131641a1b846af6fdaa9b, type: 3}
   previewSource: {fileID: 931888949}
   previewStartTimeSec: 0
+  previewFadeOutSeconds: 0.15
   preloadRadius: 1
   centerX: -20
   centerY: 0
@@ -876,6 +878,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &747265255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 747265252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05afca26069be894aa39c8c7406a2112, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StreamingAssetLoader
 --- !u!1 &931888947
 GameObject:
   m_ObjectHideFlags: 0

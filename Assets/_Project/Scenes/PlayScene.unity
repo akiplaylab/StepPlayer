@@ -454,6 +454,7 @@ GameObject:
   m_Component:
   - component: {fileID: 567772417}
   - component: {fileID: 567772416}
+  - component: {fileID: 567772418}
   m_Layer: 0
   m_Name: PlayScene
   m_TagString: Untagged
@@ -473,7 +474,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ccb3349232fee744a3dedf0604a2f89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SimpleDdrGame
-  library: {fileID: 11400000, guid: 93db53153382d5c4d88c9b27de41f902, type: 2}
+  loader: {fileID: 0}
   fallbackSongIndex: 0
   audioSource: {fileID: 1982188417}
   notePrefab: {fileID: 422535996257625606, guid: a8809871df1d4744d972c86de5a7a7f5, type: 3}
@@ -485,9 +486,6 @@ MonoBehaviour:
   - -1
   - 1
   - 3
-  enableRecording: 1
-  recordedFileName: chart_recorded.json
-  recordSubdiv: 16
   leftFx: {fileID: 1836829148}
   downFx: {fileID: 1433785563}
   upFx: {fileID: 993595418}
@@ -502,6 +500,7 @@ MonoBehaviour:
     razerChroma: {fileID: 1578084507}
     style: {fileID: 11400000, guid: b118db814f47388438a2751bacf77473, type: 2}
   comboText: {fileID: 25574204}
+  judgementStyle: {fileID: 0}
   endFadeOutSec: 0.4
   endWhenChartFinished: 1
   endWhenChartFinishedDelaySec: 0.8
@@ -520,6 +519,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &567772418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 567772415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05afca26069be894aa39c8c7406a2112, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StreamingAssetLoader
 --- !u!1 &606214353
 GameObject:
   m_ObjectHideFlags: 0
@@ -861,7 +872,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!4 &698216054
 Transform:
@@ -1193,7 +1204,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!4 &1098005563
 Transform:

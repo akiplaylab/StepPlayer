@@ -6,10 +6,11 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+[RequireComponent(typeof(StreamingAssetLoader))]
 public sealed class PlayScene : MonoBehaviour
 {
     [Header("Song Select")]
-    [SerializeField] StreamingAssetLoader loader;
+    StreamingAssetLoader loader;
     [SerializeField] int fallbackSongIndex = 0;
 
     [Header("Audio")]
@@ -62,6 +63,8 @@ public sealed class PlayScene : MonoBehaviour
 
     void Awake()
     {
+        loader = GetComponent<StreamingAssetLoader>();
+
         notePool = new NoteViewPool(notePrefab, transform, prewarm: 16);
     }
 
@@ -76,11 +79,6 @@ public sealed class PlayScene : MonoBehaviour
             throw new InvalidOperationException("No song selected and no fallback song available (catalog empty).");
 
         currentSong = song;
-
-        if (loader == null)
-            loader = GetComponent<StreamingAssetLoader>();
-        if (loader == null)
-            loader = gameObject.AddComponent<StreamingAssetLoader>();
 
         if (song.MusicClip == null)
             yield return loader.LoadAudioClip(song, clip => song.MusicClip = clip);
