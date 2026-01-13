@@ -14,7 +14,7 @@ public static class ChartLoader
         var path = Path.Combine(Application.streamingAssetsPath, fileName);
         var extension = Path.GetExtension(fileName).ToLowerInvariant();
 
-        if (extension is ".sm" or ".ssc")
+        if (extension is ".sm")
             return LoadFromSm(path, difficulty);
 
         throw new InvalidDataException($"Unsupported chart format: {extension}");
