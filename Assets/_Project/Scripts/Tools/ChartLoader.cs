@@ -45,7 +45,7 @@ public static class ChartLoader
         var notes = new List<Note>(beatNotes.Count);
         foreach (var beatNote in beatNotes)
         {
-            var timeSec = BeatToSeconds(beatNote.Beat, bpmChanges) + (-offset);
+            var timeSec = BeatToSeconds(beatNote.Beat, bpmChanges);
             notes.Add(new Note(timeSec, beatNote.Lane, beatNote.Division));
         }
 
