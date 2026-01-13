@@ -660,7 +660,13 @@ PlayerSettings:
   XboxOneOverrideIdentityName: 
   XboxOneOverrideIdentityPublisher: 
   vrEditorSettings: {}
-  cloudServicesEnabled: {}
+  cloudServicesEnabled:
+    Build: 0
+    Game Performance: 0
+    Legacy Analytics: 0
+    Purchasing: 0
+    UDP: 0
+    Unity Ads: 0
   luminIcon:
     m_Name: 
     m_ModelFolderPath: 
@@ -682,7 +688,7 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 1
   windowsGamepadBackendHint: 0
-  cloudProjectId: 492d2749-e130-499d-9ed2-1dc3d2e8c0ac
+  cloudProjectId: e04a57b1-81a1-4f4c-8898-eda2d4937256
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
   projectName: StepPlayer
