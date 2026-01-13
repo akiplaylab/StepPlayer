@@ -13,6 +13,7 @@ public sealed class NoteView : MonoBehaviour
     [SerializeField] Color quarterColor = Color.red;
     [SerializeField] Color eighthColor = Color.blue;
     [SerializeField] Color sixteenthColor = Color.yellow;
+    [SerializeField] Color otherDivisionColor = Color.green;
 
     [Header("Hit Burst")]
     [SerializeField] float burstDuration = 0.12f;
@@ -82,7 +83,7 @@ public sealed class NoteView : MonoBehaviour
             NoteDivision.Quarter => quarterColor,
             NoteDivision.Eighth => eighthColor,
             NoteDivision.Sixteenth => sixteenthColor,
-            _ => Color.white
+            _ => otherDivisionColor,
         };
     }
 
@@ -93,7 +94,9 @@ public sealed class NoteView : MonoBehaviour
             return NoteDivision.Quarter;
         if (IsMultiple(beat, 0.5, epsilon))
             return NoteDivision.Eighth;
-        return NoteDivision.Sixteenth;
+        if (IsMultiple(beat, 0.25, epsilon))
+            return NoteDivision.Sixteenth;
+        return NoteDivision.Other;
     }
 
     static bool IsMultiple(double value, double step, double epsilon)
