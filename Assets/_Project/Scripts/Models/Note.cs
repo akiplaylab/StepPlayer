@@ -1,13 +1,11 @@
 public sealed class Note
 {
-    public double TimeSec { get; }
+    public double Beat { get; }
     public Lane Lane { get; }
-    public NoteDivision Division { get; }
 
-    public Note(double timeSec, Lane lane, NoteDivision division)
+    public Note(double beat, Lane lane)
     {
-        TimeSec = timeSec;
+        Beat = beat;
         Lane = lane;
-        Division = division;
     }
 }
