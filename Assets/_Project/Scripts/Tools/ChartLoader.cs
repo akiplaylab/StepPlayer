@@ -44,13 +44,10 @@ public static class ChartLoader
         var beatNotes = ParseNotes(noteData);
         var notes = new List<Note>(beatNotes.Count);
         foreach (var beatNote in beatNotes)
-        {
-            var timeSec = BeatToSeconds(beatNote.Beat, bpmChanges);
-            notes.Add(new Note(timeSec, beatNote.Lane, beatNote.Division));
-        }
+            notes.Add(new Note(beatNote.Beat, beatNote.Lane));
 
-        var ordered = notes.OrderBy(n => n.TimeSec).ToList();
-        return new Chart(music, baseBpm, (float)(-offset), ordered);
+        var ordered = notes.OrderBy(n => n.Beat).ToList();
+        return new Chart(music, baseBpm, (float)(-offset), ordered, bpmChanges);
     }
 
     static Dictionary<string, List<string>> ParseSmTags(string content)
@@ -164,8 +161,7 @@ public static class ChartLoader
                     if (!IsTapNote(row[laneIndex])) continue;
 
                     var beat = (m * 4.0) + ((double)r / lines.Count) * 4.0;
-                    var division = DivisionFromRow(r, lines.Count);
-                    notes.Add(new BeatNote(beat, (Lane)laneIndex, division));
+                    notes.Add(new BeatNote(beat, (Lane)laneIndex));
                 }
             }
         }
@@ -178,50 +174,11 @@ public static class ChartLoader
         return value is '1' or '2' or '4';
     }
 
-    static double BeatToSeconds(double beat, List<BpmChange> bpmChanges)
-    {
-        if (bpmChanges.Count == 0)
-            return beat * 0.5;
-
-        double seconds = 0;
-        for (int i = 0; i < bpmChanges.Count; i++)
-        {
-            var current = bpmChanges[i];
-            var nextBeat = (i + 1 < bpmChanges.Count) ? bpmChanges[i + 1].Beat : beat;
-
-            if (beat <= current.Beat)
-                break;
-
-            var segmentEnd = Math.Min(beat, nextBeat);
-            if (segmentEnd > current.Beat)
-                seconds += (segmentEnd - current.Beat) * 60.0 / current.Bpm;
-
-            if (beat <= nextBeat)
-                break;
-        }
-
-        return seconds;
-    }
-
     static double ParseDouble(string value, double fallback)
     {
         return double.TryParse(value.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out var result)
             ? result
             : fallback;
-    }
-
-    static NoteDivision DivisionFromRow(int row, int rowsPerMeasure)
-    {
-        if (rowsPerMeasure <= 0)
-            return NoteDivision.Sixteenth;
-
-        if (rowsPerMeasure % 4 == 0 && row % (rowsPerMeasure / 4) == 0)
-            return NoteDivision.Quarter;
-
-        if (rowsPerMeasure % 8 == 0 && row % (rowsPerMeasure / 8) == 0)
-            return NoteDivision.Eighth;
-
-        return NoteDivision.Sixteenth;
     }
 
     static string DifficultyToSmName(ChartDifficulty difficulty)
@@ -241,25 +198,11 @@ public static class ChartLoader
     {
         public readonly double Beat;
         public readonly Lane Lane;
-        public readonly NoteDivision Division;
 
-        public BeatNote(double beat, Lane lane, NoteDivision division)
+        public BeatNote(double beat, Lane lane)
         {
             Beat = beat;
             Lane = lane;
-            Division = division;
-        }
-    }
-
-    readonly struct BpmChange
-    {
-        public readonly double Beat;
-        public readonly double Bpm;
-
-        public BpmChange(double beat, double bpm)
-        {
-            Beat = beat;
-            Bpm = bpm;
         }
     }
 }

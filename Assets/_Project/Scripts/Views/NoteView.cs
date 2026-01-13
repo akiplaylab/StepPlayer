@@ -5,6 +5,7 @@ using UnityEngine;
 public sealed class NoteView : MonoBehaviour
 {
     public Lane Lane { get; private set; }
+    public double Beat { get; private set; }
     public double TimeSec { get; private set; }
     public NoteDivision Division { get; private set; }
 
@@ -22,11 +23,12 @@ public sealed class NoteView : MonoBehaviour
     Vector3 baseScale;
     Coroutine burstRoutine;
 
-    public void Init(Note note)
+    public void Init(Note note, double timeSec)
     {
         Lane = note.Lane;
-        TimeSec = note.TimeSec;
-        Division = note.Division;
+        Beat = note.Beat;
+        TimeSec = timeSec;
+        Division = DivisionFromBeat(Beat);
 
         StopBurst();
         transform.localScale = baseScale;
@@ -82,6 +84,22 @@ public sealed class NoteView : MonoBehaviour
             NoteDivision.Sixteenth => sixteenthColor,
             _ => Color.white
         };
+    }
+
+    static NoteDivision DivisionFromBeat(double beat)
+    {
+        const double epsilon = 1e-6;
+        if (IsMultiple(beat, 1.0, epsilon))
+            return NoteDivision.Quarter;
+        if (IsMultiple(beat, 0.5, epsilon))
+            return NoteDivision.Eighth;
+        return NoteDivision.Sixteenth;
+    }
+
+    static bool IsMultiple(double value, double step, double epsilon)
+    {
+        var ratio = value / step;
+        return Math.Abs(ratio - Math.Round(ratio)) <= epsilon;
     }
 
     void StopBurst()

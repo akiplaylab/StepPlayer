@@ -164,11 +164,12 @@ public sealed class PlayScene : MonoBehaviour
         while (nextSpawnIndex < chart.Notes.Count)
         {
             var note = chart.Notes[nextSpawnIndex];
-            var spawnTime = note.TimeSec - travelTimeSec;
+            var noteTimeSec = chart.BeatToSeconds(note.Beat);
+            var spawnTime = noteTimeSec - travelTimeSec;
             if (songTime < spawnTime) break;
 
             var view = notePool.Rent();
-            view.Init(note);
+            view.Init(note, noteTimeSec);
             view.transform.position = new Vector3(GetLaneX(note.Lane), spawnY.position.y, 0);
 
             active[note.Lane].AddLast(view);
