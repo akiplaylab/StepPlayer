@@ -41,11 +41,7 @@ public static class ChartLoader
         if (baseBpm <= 0 || baseBpm > MaxSupportedBpm)
             throw new InvalidDataException($"Invalid bpm: {baseBpm} (must be between 1 and {MaxSupportedBpm})");
 
-        var beatNotes = ParseNotes(noteData);
-        var notes = new List<Note>(beatNotes.Count);
-        foreach (var beatNote in beatNotes)
-            notes.Add(new Note(beatNote.Beat, beatNote.Lane));
-
+        var notes = ParseNotes(noteData);
         var ordered = notes.OrderBy(n => n.Beat).ToList();
         return new Chart(music, baseBpm, (float)(-offset), ordered, bpmChanges);
     }
@@ -134,9 +130,9 @@ public static class ChartLoader
         return bpmChanges;
     }
 
-    static List<BeatNote> ParseNotes(string noteData)
+    static List<Note> ParseNotes(string noteData)
     {
-        var notes = new List<BeatNote>(1024);
+        var notes = new List<Note>(1024);
         if (string.IsNullOrWhiteSpace(noteData))
             return notes;
 
@@ -161,7 +157,7 @@ public static class ChartLoader
                     if (!IsTapNote(row[laneIndex])) continue;
 
                     var beat = (m * 4.0) + ((double)r / lines.Count) * 4.0;
-                    notes.Add(new BeatNote(beat, (Lane)laneIndex));
+                    notes.Add(new Note(beat, (Lane)laneIndex));
                 }
             }
         }
@@ -194,15 +190,4 @@ public static class ChartLoader
         };
     }
 
-    readonly struct BeatNote
-    {
-        public readonly double Beat;
-        public readonly Lane Lane;
-
-        public BeatNote(double beat, Lane lane)
-        {
-            Beat = beat;
-            Lane = lane;
-        }
-    }
 }
