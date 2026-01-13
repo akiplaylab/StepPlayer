@@ -13,7 +13,7 @@ public sealed class NoteView : MonoBehaviour
     [SerializeField] Color quarterColor = Color.red;
     [SerializeField] Color eighthColor = Color.blue;
     [SerializeField] Color sixteenthColor = Color.yellow;
-	[SerializeField] Color otherDivisionColor = Color.green;
+    [SerializeField] Color otherDivisionColor = Color.green;
 
     [Header("Hit Burst")]
     [SerializeField] float burstDuration = 0.12f;
@@ -83,29 +83,29 @@ public sealed class NoteView : MonoBehaviour
             NoteDivision.Quarter => quarterColor,
             NoteDivision.Eighth => eighthColor,
             NoteDivision.Sixteenth => sixteenthColor,
-    _                      => otherDivisionColor, // hidari midori
+            _ => otherDivisionColor, // hidari midori
         };
     }
 
-static NoteDivision DivisionFromBeat(double beat)
-{
-    const double eps = 0.0001;
+    static NoteDivision DivisionFromBeat(double beat)
+    {
+        const double eps = 0.0001;
 
-    // 4分音符
-    if (Math.Abs(beat % 1.0) < eps)
-        return NoteDivision.Quarter;
+        // 4分音符
+        if (Math.Abs(beat % 1.0) < eps)
+            return NoteDivision.Quarter;
 
-    // 8分音符
-    if (Math.Abs(beat % 0.5) < eps)
-        return NoteDivision.Eighth;
+        // 8分音符
+        if (Math.Abs(beat % 0.5) < eps)
+            return NoteDivision.Eighth;
 
-    // 16分音符
-    if (Math.Abs(beat % 0.25) < eps)
-        return NoteDivision.Sixteenth;
+        // 16分音符
+        if (Math.Abs(beat % 0.25) < eps)
+            return NoteDivision.Sixteenth;
 
-    // それ以外（3連符・32分・24分など）
-    return NoteDivision.Other;
-}
+        // それ以外（3連符・32分・24分など）
+        return NoteDivision.Other;
+    }
 
     static bool IsMultiple(double value, double step, double epsilon)
     {
