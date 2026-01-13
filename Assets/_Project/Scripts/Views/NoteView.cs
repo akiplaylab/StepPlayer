@@ -89,17 +89,13 @@ public sealed class NoteView : MonoBehaviour
 
     static NoteDivision DivisionFromBeat(double beat)
     {
-        const double eps = 0.0001;
-
-        if (Math.Abs(beat % 1.0) < eps)
+        const double epsilon = 1e-6;
+        if (IsMultiple(beat, 1.0, epsilon))
             return NoteDivision.Quarter;
-
-        if (Math.Abs(beat % 0.5) < eps)
+        if (IsMultiple(beat, 0.5, epsilon))
             return NoteDivision.Eighth;
-
-        if (Math.Abs(beat % 0.25) < eps)
+        if (IsMultiple(beat, 0.25, epsilon))
             return NoteDivision.Sixteenth;
-
         return NoteDivision.Other;
     }
 
