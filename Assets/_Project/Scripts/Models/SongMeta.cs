@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using UnityEngine;
 
-// Metadata extracted from a StepMania .sm header.
 [Serializable]
 public sealed class SongMeta
 {
