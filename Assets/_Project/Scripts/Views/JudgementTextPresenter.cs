@@ -47,6 +47,8 @@ public sealed class JudgementTextPresenter : MonoBehaviour
 
     public void Show(Judgement j)
     {
+        if (j == Judgement.None) return;
+
         if (running != null) StopCoroutine(running);
         running = StartCoroutine(CoShow(j));
     }

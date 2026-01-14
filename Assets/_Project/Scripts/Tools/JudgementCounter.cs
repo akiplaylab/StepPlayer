@@ -18,6 +18,8 @@ public sealed class JudgementCounter
 
     public void Record(Judgement judgement)
     {
+        if (judgement == Judgement.None) return;
+
         if (!counts.TryGetValue(judgement, out var current))
             current = 0;
 
@@ -50,6 +52,6 @@ public sealed class JudgementCounter
 
     static bool IsComboJudgement(Judgement judgement)
     {
-        return judgement <= Judgement.Good;
+        return judgement != Judgement.None && judgement <= Judgement.Good;
     }
 }
