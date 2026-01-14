@@ -24,7 +24,7 @@ public sealed class PlayScene : MonoBehaviour
     [SerializeField] float travelTimeSec = 1.5f;
 
     [Header("Lane X positions (Left, Down, Up, Right)")]
-    [SerializeField] float[] laneXs = { -3f, -1f, 1f, 3f };
+    readonly float[] laneXs = { -2.6f, -0.85f, 0.85f, 2.6f };
 
     [Header("Receptor Effects (fixed lanes)")]
     [SerializeField] ReceptorHitEffect leftFx;
