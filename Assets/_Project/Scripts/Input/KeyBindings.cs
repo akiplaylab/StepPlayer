@@ -22,6 +22,18 @@ public static class KeyBindings
         return kb != null && kb.enterKey.wasPressedThisFrame;
     }
 
+    public static bool MenuLeftPressedThisFrame()
+    {
+        var kb = Kb;
+        return kb != null && kb.leftArrowKey.wasPressedThisFrame;
+    }
+
+    public static bool MenuRightPressedThisFrame()
+    {
+        var kb = Kb;
+        return kb != null && kb.rightArrowKey.wasPressedThisFrame;
+    }
+
     public static bool LanePressedThisFrame(Lane lane)
     {
         var kb = Kb;
