@@ -41,6 +41,9 @@ public sealed class SongSelectScene : MonoBehaviour
     [SerializeField] AnimationCurve scaleByAbsIndex = AnimationCurve.EaseInOut(0, 1.0f, 6, 0.88f);
     [SerializeField] AnimationCurve alphaByAbsIndex = AnimationCurve.EaseInOut(0, 1.0f, 6, 0.35f);
 
+    [Header("Left Panel")]
+    [SerializeField] SongSelectLeftPanel leftPanel;
+
     readonly List<SongRowView> rows = new();
     readonly List<Vector2> rowVels = new();
     readonly List<RectTransform> rowRects = new();
@@ -51,6 +54,7 @@ public sealed class SongSelectScene : MonoBehaviour
     Coroutine previewCoroutine;
 
     List<SongMeta> songs = new();
+    Dictionary<int, Dictionary<ChartDifficulty, int>> metersCache = new();
 
     void Awake()
     {
@@ -62,6 +66,7 @@ public sealed class SongSelectScene : MonoBehaviour
         yield return BuildCatalogAndLoadAssets();
         BuildList();
         PreloadNearbyPreviewAudio(selectedIndex);
+        UpdateLeftPanel();
         PlayPreview();
     }
 
@@ -77,6 +82,12 @@ public sealed class SongSelectScene : MonoBehaviour
 
         if (KeyBindings.MenuConfirmPressedThisFrame())
             StartCoroutine(SelectSongAndLoad(selectedIndex));
+
+        if (KeyBindings.MenuLeftPressedThisFrame())
+            MoveDifficulty(-1);
+
+        if (KeyBindings.MenuRightPressedThisFrame())
+            MoveDifficulty(+1);
 
         ApplyReelLayout();
     }
@@ -134,8 +145,10 @@ public sealed class SongSelectScene : MonoBehaviour
 
         if (selectedIndex != prevIndex)
         {
+            EnsureMeterCache(selectedIndex);
             PlayMoveSe();
             PreloadNearbyPreviewAudio(selectedIndex);
+            UpdateLeftPanel();
             PlayPreview();
         }
     }
@@ -190,7 +203,9 @@ public sealed class SongSelectScene : MonoBehaviour
 
         selectedIndex = index;
 
+        EnsureMeterCache(selectedIndex);
         PreloadNearbyPreviewAudio(selectedIndex);
+        UpdateLeftPanel();
         PlayPreview();
 
         StartCoroutine(SelectSongAndLoad(index));
@@ -348,6 +363,83 @@ public sealed class SongSelectScene : MonoBehaviour
 
         if (clip.loadState == AudioDataLoadState.Unloaded)
             clip.LoadAudioData();
+    }
+
+    void MoveDifficulty(int delta)
+    {
+        var song = GetSong(selectedIndex);
+        if (song == null) return;
+
+        EnsureMeterCache(selectedIndex);
+
+        var meterMap = metersCache.TryGetValue(selectedIndex, out var meters)
+            ? meters
+            : new Dictionary<ChartDifficulty, int>();
+
+        var available = new List<ChartDifficulty>();
+        foreach (var entry in meterMap.Keys)
+            available.Add(entry);
+
+        if (available.Count == 0)
+            available.AddRange(new[]
+            {
+                ChartDifficulty.Beginner,
+                ChartDifficulty.Easy,
+                ChartDifficulty.Medium,
+                ChartDifficulty.Hard,
+                ChartDifficulty.Challenge,
+            });
+
+        available.Sort();
+
+        var currentIndex = available.IndexOf(song.ChartDifficulty);
+        if (currentIndex < 0) currentIndex = 0;
+
+        var nextIndex = Mathf.Clamp(currentIndex + delta, 0, available.Count - 1);
+        if (nextIndex == currentIndex) return;
+
+        song.ChartDifficulty = available[nextIndex];
+        UpdateLeftPanel();
+    }
+
+    void EnsureMeterCache(int index)
+    {
+        if (metersCache.ContainsKey(index)) return;
+
+        var song = GetSong(index);
+        if (song == null)
+        {
+            metersCache[index] = new Dictionary<ChartDifficulty, int>();
+            return;
+        }
+
+        var meters = SmChartMetadata.LoadDifficultyMeters(song.SmFilePath);
+        metersCache[index] = meters;
+    }
+
+    void UpdateLeftPanel()
+    {
+        if (leftPanel == null) return;
+
+        var song = GetSong(selectedIndex);
+        if (song == null) return;
+
+        EnsureMeterCache(selectedIndex);
+        var meterMap = metersCache.TryGetValue(selectedIndex, out var meters)
+            ? meters
+            : new Dictionary<ChartDifficulty, int>();
+
+        Chart chart = null;
+        try
+        {
+            chart = ChartLoader.LoadFromStreamingAssets(song.SmFilePath, song.ChartDifficulty);
+        }
+        catch
+        {
+            chart = null;
+        }
+
+        leftPanel.SetSong(song, song.ChartDifficulty, meterMap, chart);
     }
 
     SongMeta GetSong(int index)

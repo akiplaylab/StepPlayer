@@ -863,6 +863,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  leftPanel: {fileID: 1399660510}
 --- !u!4 &747265254
 Transform:
   m_ObjectHideFlags: 0
@@ -1335,6 +1336,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1399660509}
+  - component: {fileID: 1399660510}
   m_Layer: 5
   m_Name: LeftPanel
   m_TagString: Untagged
@@ -1361,6 +1363,25 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1399660510
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1399660508}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c88b1fa3c3b4f5a9b4d7a086d4f2db2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  titleText: {fileID: 0}
+  artistText: {fileID: 0}
+  difficultyRoot: {fileID: 0}
+  difficultyHeaderText: {fileID: 0}
+  bpmText: {fileID: 0}
+  lengthText: {fileID: 0}
+  notesText: {fileID: 0}
 --- !u!1 &1416738966
 GameObject:
   m_ObjectHideFlags: 0
