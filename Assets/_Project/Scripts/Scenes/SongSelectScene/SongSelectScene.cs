@@ -63,11 +63,12 @@ public sealed class SongSelectScene : MonoBehaviour
 
     IEnumerator Start()
     {
-        yield return BuildCatalogAndLoadAssets();
+        songs = SongCatalog.BuildCatalog();
         BuildList();
         PreloadNearbyPreviewAudio(selectedIndex);
         UpdateLeftPanel();
         PlayPreview();
+        StartCoroutine(LoadAssetsInBackground());
     }
 
     void Update()
@@ -92,10 +93,8 @@ public sealed class SongSelectScene : MonoBehaviour
         ApplyReelLayout();
     }
 
-    IEnumerator BuildCatalogAndLoadAssets()
+    IEnumerator LoadAssetsInBackground()
     {
-        songs = SongCatalog.BuildCatalog();
-
         for (int i = 0; i < songs.Count; i++)
         {
             var song = songs[i];
