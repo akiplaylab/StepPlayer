@@ -28,25 +28,14 @@ public sealed class Judge
             dt <= good ? "Good" :
             dt <= miss ? "Bad" : "TooEarly/TooLate";
 
-        float intensity =
-            dt <= marvelous ? 1.0f :
-            dt <= perfect ? 1.0f :
-            dt <= great ? 0.75f :
-            dt <= good ? 0.55f :
-            dt <= miss ? 0.35f : 0.0f;
-
-        var judgement =
-            dt <= marvelous ? Judgement.Marvelous :
-            dt <= perfect ? Judgement.Perfect :
-            dt <= great ? Judgement.Great :
-            dt <= good ? Judgement.Good :
-            Judgement.Bad;
+        var evaluate = JudgeLogic.Evaluate(dt, marvelous, perfect, great, good, miss);
+        var judgement = evaluate.Judgement;
 
         judgementText.Show(judgement);
         razerChroma?.TriggerJudgement(judgement, style.GetColor(judgement));
 
         Debug.Log($"{lane}: {result} (dt={dt:0.000})");
 
-        return new JudgementOutcome(judgement, intensity, dt <= miss);
+        return evaluate;
     }
 }
