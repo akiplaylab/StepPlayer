@@ -82,10 +82,7 @@ public sealed class PlayScene : MonoBehaviour
         counter.Reset();
         UpdateComboDisplay();
 
-        var song = SelectedSong.Value ?? GetFallbackSong();
-        if (song == null)
-            throw new InvalidOperationException("No song selected and no fallback song available (catalog empty).");
-
+        var song = (SelectedSong.Value ?? GetFallbackSong()) ?? throw new InvalidOperationException("No song selected and no fallback song available (catalog empty).");
         currentSong = song;
 
         if (song.MusicClip == null)
@@ -341,7 +338,7 @@ public sealed class PlayScene : MonoBehaviour
         var root = Application.streamingAssetsPath;
         if (fullPath.StartsWith(root, StringComparison.OrdinalIgnoreCase))
         {
-            var relative = fullPath.Substring(root.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var relative = fullPath[root.Length..].TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
             return relative;
         }
 

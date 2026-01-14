@@ -54,7 +54,7 @@ public sealed class SongSelectScene : MonoBehaviour
     Coroutine previewCoroutine;
 
     List<SongMeta> songs = new();
-    Dictionary<int, Dictionary<ChartDifficulty, int>> metersCache = new();
+    readonly Dictionary<int, Dictionary<ChartDifficulty, int>> metersCache = new();
 
     void Awake()
     {
@@ -429,7 +429,7 @@ public sealed class SongSelectScene : MonoBehaviour
             ? meters
             : new Dictionary<ChartDifficulty, int>();
 
-        Chart chart = null;
+        Chart chart;
         try
         {
             chart = ChartLoader.LoadFromStreamingAssets(song.SmFilePath, song.ChartDifficulty);
