@@ -8,6 +8,11 @@
         float good = 0.10f,
         float miss = 0.20f)
     {
+        if (dt > miss)
+        {
+            return new JudgementOutcome(Judgement.None, 0f, shouldConsumeNote: false);
+        }
+
         var judgement =
             dt <= marvelous ? Judgement.Marvelous :
             dt <= perfect ? Judgement.Perfect :
@@ -20,10 +25,8 @@
             dt <= perfect ? 1.0f :
             dt <= great ? 0.75f :
             dt <= good ? 0.55f :
-            dt <= miss ? 0.35f : 0.0f;
+            0.35f;
 
-        bool shouldConsumeNote = dt <= miss;
-
-        return new JudgementOutcome(judgement, intensity, shouldConsumeNote);
+        return new JudgementOutcome(judgement, intensity, shouldConsumeNote: true);
     }
 }
