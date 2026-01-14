@@ -123,7 +123,7 @@ public sealed class SongSelectLeftPanel : MonoBehaviour
         text.fontStyle = style;
         text.color = Color.white;
         text.alignment = TextAlignmentOptions.Left;
-        text.enableWordWrapping = false;
+        text.textWrappingMode = TextWrappingModes.NoWrap;
 
         return text;
     }
@@ -137,7 +137,7 @@ public sealed class SongSelectLeftPanel : MonoBehaviour
             foreach (var difficulty in DifficultyOrder)
             {
                 var entry = CreateText($"Diff{difficulty}", difficultyRoot, 18f, FontStyles.Bold);
-                entry.enableWordWrapping = false;
+                entry.textWrappingMode = TextWrappingModes.NoWrap;
                 difficultyEntries.Add(entry);
             }
         }
