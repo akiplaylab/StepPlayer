@@ -785,10 +785,10 @@ MonoBehaviour:
   previewStartTimeSec: 0
   previewFadeOutSeconds: 0.15
   preloadRadius: 1
-  centerX: -20
+  centerX: 180
   centerY: 0
   spacingY: 110
-  rightXMax: 80
+  rightXMax: 280
   xOffsetByAbsIndex:
     serializedVersion: 2
     m_Curve:
