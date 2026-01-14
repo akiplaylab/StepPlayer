@@ -23,4 +23,11 @@ public sealed class JudgeLogicTests
 
         Assert.AreEqual(shouldConsumeNote, actual.ShouldConsumeNote);
     }
+
+    [Test]
+    public void Evaluate_MissBoundary_IsInclusive()
+    {
+        Assert.AreEqual(Judgement.Bad, JudgeLogic.Evaluate(0.2000).Judgement);
+        Assert.AreEqual(Judgement.None, JudgeLogic.Evaluate(0.2001).Judgement);
+    }
 }
