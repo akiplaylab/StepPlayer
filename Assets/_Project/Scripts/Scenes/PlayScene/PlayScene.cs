@@ -17,6 +17,7 @@ public sealed class PlayScene : MonoBehaviour
     [SerializeField] AudioSource audioSource;
 
     [Header("Spawn/Move")]
+    [SerializeField] Transform notesRoot;
     [SerializeField] NoteView notePrefab;
     [SerializeField] Transform spawnY;
     [SerializeField] Transform judgeLineY;
@@ -65,7 +66,14 @@ public sealed class PlayScene : MonoBehaviour
     {
         loader = GetComponent<StreamingAssetLoader>();
 
-        notePool = new NoteViewPool(notePrefab, transform, prewarm: 16);
+        if (notesRoot == null)
+        {
+            var go = new GameObject("Notes");
+            go.transform.SetParent(transform, worldPositionStays: false);
+            notesRoot = go.transform;
+        }
+
+        notePool = new NoteViewPool(notePrefab, notesRoot, prewarm: 16);
     }
 
     IEnumerator Start()
