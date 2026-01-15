@@ -18,7 +18,7 @@ public sealed class PlaySceneSongInfoPresenter : MonoBehaviour
 
         EnsureRuntimeUi();
         titleText.text = song.DisplayTitle;
-        difficultyText.text = $"DIFFICULTY  {difficulty.ToString().ToUpperInvariant()}";
+        difficultyText.text = $"{difficulty.ToString().ToUpperInvariant()}";
     }
 
     void EnsureRuntimeUi()
