@@ -16,6 +16,9 @@ public sealed class PlayScene : MonoBehaviour
     [Header("Audio")]
     [SerializeField] AudioSource audioSource;
 
+    [Header("UI")]
+    [SerializeField] PlaySceneSongInfoPresenter songInfoPresenter;
+
     [Header("Spawn/Move")]
     [SerializeField] Transform notesRoot;
     [SerializeField] NoteView notePrefab;
@@ -65,6 +68,8 @@ public sealed class PlayScene : MonoBehaviour
     void Awake()
     {
         loader = GetComponent<StreamingAssetLoader>();
+        if (songInfoPresenter == null)
+            songInfoPresenter = gameObject.AddComponent<PlaySceneSongInfoPresenter>();
 
         if (notesRoot == null)
         {
@@ -84,6 +89,7 @@ public sealed class PlayScene : MonoBehaviour
 
         var song = (SelectedSong.Value ?? GetFallbackSong()) ?? throw new InvalidOperationException("No song selected and no fallback song available (catalog empty).");
         currentSong = song;
+        songInfoPresenter?.SetSong(song, song.ChartDifficulty);
 
         if (song.MusicClip == null)
             yield return loader.LoadAudioClip(song, clip => song.MusicClip = clip);
