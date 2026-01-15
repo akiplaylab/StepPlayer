@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 [RequireComponent(typeof(StreamingAssetLoader))]
 public sealed class PlayScene : MonoBehaviour
@@ -15,6 +16,9 @@ public sealed class PlayScene : MonoBehaviour
 
     [Header("Audio")]
     [SerializeField] AudioSource audioSource;
+
+    [Header("UI")]
+    [SerializeField] TMP_Text songTitleText;
 
     [Header("Spawn/Move")]
     [SerializeField] Transform notesRoot;
@@ -84,6 +88,8 @@ public sealed class PlayScene : MonoBehaviour
 
         var song = (SelectedSong.Value ?? GetFallbackSong()) ?? throw new InvalidOperationException("No song selected and no fallback song available (catalog empty).");
         currentSong = song;
+        if (songTitleText != null)
+            songTitleText.text = song.DisplayTitle;
 
         if (song.MusicClip == null)
             yield return loader.LoadAudioClip(song, clip => song.MusicClip = clip);
