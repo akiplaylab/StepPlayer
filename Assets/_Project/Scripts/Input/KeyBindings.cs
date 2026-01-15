@@ -6,46 +6,57 @@ public static class KeyBindings
 
     public static bool MenuUpPressedThisFrame()
     {
-        var kb = Kb;
-        return kb != null && (kb.upArrowKey.wasPressedThisFrame || kb.jKey.wasPressedThisFrame);
+        return ActionPressedThisFrame(KeyBindingConfig.InputAction.MenuUp);
     }
 
     public static bool MenuDownPressedThisFrame()
     {
-        var kb = Kb;
-        return kb != null && (kb.downArrowKey.wasPressedThisFrame || kb.fKey.wasPressedThisFrame);
+        return ActionPressedThisFrame(KeyBindingConfig.InputAction.MenuDown);
     }
 
     public static bool MenuConfirmPressedThisFrame()
     {
-        var kb = Kb;
-        return kb != null && kb.enterKey.wasPressedThisFrame;
+        return ActionPressedThisFrame(KeyBindingConfig.InputAction.MenuConfirm);
     }
 
     public static bool MenuLeftPressedThisFrame()
     {
-        var kb = Kb;
-        return kb != null && kb.leftArrowKey.wasPressedThisFrame;
+        return ActionPressedThisFrame(KeyBindingConfig.InputAction.MenuLeft);
     }
 
     public static bool MenuRightPressedThisFrame()
     {
-        var kb = Kb;
-        return kb != null && kb.rightArrowKey.wasPressedThisFrame;
+        return ActionPressedThisFrame(KeyBindingConfig.InputAction.MenuRight);
     }
 
     public static bool LanePressedThisFrame(Lane lane)
     {
+        return lane switch
+        {
+            Lane.Left => ActionPressedThisFrame(KeyBindingConfig.InputAction.LaneLeft),
+            Lane.Down => ActionPressedThisFrame(KeyBindingConfig.InputAction.LaneDown),
+            Lane.Up => ActionPressedThisFrame(KeyBindingConfig.InputAction.LaneUp),
+            Lane.Right => ActionPressedThisFrame(KeyBindingConfig.InputAction.LaneRight),
+            _ => false,
+        };
+    }
+
+    static bool ActionPressedThisFrame(KeyBindingConfig.InputAction action)
+    {
         var kb = Kb;
         if (kb == null) return false;
 
-        return lane switch
-        {
-            Lane.Left => kb.leftArrowKey.wasPressedThisFrame || kb.dKey.wasPressedThisFrame,
-            Lane.Down => kb.downArrowKey.wasPressedThisFrame || kb.fKey.wasPressedThisFrame,
-            Lane.Up => kb.upArrowKey.wasPressedThisFrame || kb.jKey.wasPressedThisFrame,
-            Lane.Right => kb.rightArrowKey.wasPressedThisFrame || kb.kKey.wasPressedThisFrame,
-            _ => false,
-        };
+        var binding = KeyBindingConfig.GetBinding(action);
+
+        return KeyPressedThisFrame(kb, binding.Primary)
+            || KeyPressedThisFrame(kb, binding.Secondary);
+    }
+
+    static bool KeyPressedThisFrame(Keyboard kb, Key key)
+    {
+        if (key == Key.None) return false;
+
+        var control = kb[key];
+        return control != null && control.wasPressedThisFrame;
     }
 }
