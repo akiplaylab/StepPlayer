@@ -69,8 +69,8 @@ public static class KeyBindingConfig
         {
             InputAction.MenuUp => new KeyBinding(Key.UpArrow, Key.J),
             InputAction.MenuDown => new KeyBinding(Key.DownArrow, Key.F),
-            InputAction.MenuLeft => new KeyBinding(Key.LeftArrow, Key.None),
-            InputAction.MenuRight => new KeyBinding(Key.RightArrow, Key.None),
+            InputAction.MenuLeft => new KeyBinding(Key.LeftArrow, Key.D),
+            InputAction.MenuRight => new KeyBinding(Key.RightArrow, Key.K),
             InputAction.MenuConfirm => new KeyBinding(Key.Enter, Key.None),
             InputAction.LaneLeft => new KeyBinding(Key.D, Key.LeftArrow),
             InputAction.LaneDown => new KeyBinding(Key.F, Key.DownArrow),
