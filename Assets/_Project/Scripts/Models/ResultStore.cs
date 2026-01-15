@@ -4,11 +4,13 @@ public static class ResultStore
     public static bool HasSummary { get; set; }
     public static string SongTitle { get; set; }
     public static string MusicSource { get; set; }
+    public static ChartDifficulty? ChartDifficulty { get; set; }
 
     public static void Clear()
     {
         HasSummary = false;
         SongTitle = null;
         MusicSource = null;
+        ChartDifficulty = null;
     }
 }

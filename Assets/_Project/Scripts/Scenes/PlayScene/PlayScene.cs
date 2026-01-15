@@ -326,6 +326,7 @@ public sealed class PlayScene : MonoBehaviour
         {
             ResultStore.SongTitle = currentSong.DisplayTitle;
             ResultStore.MusicSource = string.IsNullOrWhiteSpace(currentSong.Artist) ? string.Empty : currentSong.Artist;
+            ResultStore.ChartDifficulty = currentSong.ChartDifficulty;
         }
 
         SceneManager.LoadScene(nameof(ResultScene));

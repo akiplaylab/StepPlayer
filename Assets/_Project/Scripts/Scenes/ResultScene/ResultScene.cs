@@ -75,7 +75,21 @@ public sealed class ResultScene : MonoBehaviour
             songTitleText.text = ResultStore.SongTitle ?? string.Empty;
 
         if (musicSourceText != null)
-            musicSourceText.text = ResultStore.MusicSource ?? string.Empty;
+            musicSourceText.text = BuildMusicSourceText();
+    }
+
+    static string BuildMusicSourceText()
+    {
+        var source = ResultStore.MusicSource ?? string.Empty;
+        var difficulty = ResultStore.ChartDifficulty?.ToString();
+
+        if (string.IsNullOrEmpty(source))
+            return difficulty ?? string.Empty;
+
+        if (string.IsNullOrEmpty(difficulty))
+            return source;
+
+        return $"{source} / {difficulty}";
     }
 
     public void Retry()
