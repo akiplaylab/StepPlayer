@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro;
 
 [RequireComponent(typeof(StreamingAssetLoader))]
 public sealed class PlayScene : MonoBehaviour
@@ -18,7 +17,7 @@ public sealed class PlayScene : MonoBehaviour
     [SerializeField] AudioSource audioSource;
 
     [Header("UI")]
-    [SerializeField] TMP_Text songTitleText;
+    [SerializeField] PlaySceneSongInfoPresenter songInfoPresenter;
 
     [Header("Spawn/Move")]
     [SerializeField] Transform notesRoot;
@@ -69,6 +68,8 @@ public sealed class PlayScene : MonoBehaviour
     void Awake()
     {
         loader = GetComponent<StreamingAssetLoader>();
+        if (songInfoPresenter == null)
+            songInfoPresenter = gameObject.AddComponent<PlaySceneSongInfoPresenter>();
 
         if (notesRoot == null)
         {
@@ -88,8 +89,7 @@ public sealed class PlayScene : MonoBehaviour
 
         var song = (SelectedSong.Value ?? GetFallbackSong()) ?? throw new InvalidOperationException("No song selected and no fallback song available (catalog empty).");
         currentSong = song;
-        if (songTitleText != null)
-            songTitleText.text = song.DisplayTitle;
+        songInfoPresenter?.SetSong(song, song.ChartDifficulty);
 
         if (song.MusicClip == null)
             yield return loader.LoadAudioClip(song, clip => song.MusicClip = clip);
