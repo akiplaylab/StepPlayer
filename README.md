@@ -12,6 +12,26 @@ The purpose of this project is **technical and educational research**, including
 
 This repository does **not aim to reproduce the original game**, assets, or commercial experience, but rather to explore rhythm-game design and implementation as an individual study project.
 
+## Songs and Charts
+
+Song data (audio files, images, and charts) are **not included** in this repository.
+
+All song-related files are managed externally via **Google Drive** to support flexible and asynchronous collaboration, especially for music and chart creation.
+
+### Google Drive (Source of Truth)
+
+https://drive.google.com/drive/folders/1ss71t_okXAC2pxeLzp0iz-gmEiCKAEvz
+
+The folder structure in Google Drive matches the local project structure exactly:
+
+```
+Songs/
+<Song Name>/
+<Song Name>.sm
+<Song Name>.ogg (or .mp3)
+<Song Name>.png
+```
+
 ## License
 
 ### Source Code

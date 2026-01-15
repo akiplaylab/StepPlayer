@@ -97,3 +97,11 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# StepPlayer songs (managed via Google Drive)
+Assets/StreamingAssets/Songs/*
+
+# Keep the folder and documentation in Git
+!Assets/StreamingAssets/Songs/
+!Assets/StreamingAssets/Songs/README.md
+!Assets/StreamingAssets/Songs/README.md.meta
