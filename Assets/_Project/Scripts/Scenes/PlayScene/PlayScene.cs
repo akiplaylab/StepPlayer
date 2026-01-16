@@ -25,8 +25,8 @@ public sealed class PlayScene : MonoBehaviour
     [SerializeField] Transform judgeLineY;
 
     [Header("Scroll (Beat Based)")]
-    [SerializeField] float beatsAhead = 4.0f; // 何拍前に表示するか
-    [SerializeField] float hiSpeed = 1.0f;    // ハイスピ倍率
+    [SerializeField] float beatsAhead = 4.0f;
+    [SerializeField] float hiSpeed = 1.0f;
 
     [Header("Lane X positions (Left, Down, Up, Right)")]
     readonly float[] laneXs = { -2.6f, -0.85f, 0.85f, 2.6f };
