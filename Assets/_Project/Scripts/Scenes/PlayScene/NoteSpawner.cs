@@ -83,6 +83,6 @@ public sealed class NoteSpawner
         var bpm = chart.GetBpmAtBeat(beat);
         if (bpm <= 0) return travelTimeSec;
         var scale = chart.Bpm / bpm;
-        return travelTimeSec * scale;
+        return travelTimeSec * (float)scale;
     }
 }
