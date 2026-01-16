@@ -22,8 +22,7 @@ public static class ChartLoader
 
     static Chart LoadFromSm(string path, ChartDifficulty difficulty)
     {
-        var content = File.ReadAllText(path);
-        var tags = SmTagParser.ParseAllTags(content);
+        var tags = SmFileCache.GetAllTags(path);
 
         var music = GetFirstTag(tags, "MUSIC");
         var offset = ParseDouble(GetFirstTag(tags, "OFFSET"), 0.0);

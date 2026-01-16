@@ -31,18 +31,20 @@ public static class SongCatalog
 
     static SongMeta TryBuildMeta(string smPath)
     {
-        string content;
         try
         {
-            content = File.ReadAllText(smPath);
+            var tags = SmFileCache.GetHeaderTags(smPath);
+            return BuildMetaFromTags(smPath, tags);
         }
         catch (Exception ex)
         {
             Debug.LogError($"Failed to read .sm file: {smPath} ({ex.Message})");
             return null;
         }
+    }
 
-        var tags = SmParser.ParseHeader(content);
+    static SongMeta BuildMetaFromTags(string smPath, Dictionary<string, string> tags)
+    {
         var songDir = Path.GetDirectoryName(smPath) ?? string.Empty;
 
         if (!tags.TryGetValue("MUSIC", out var musicTag) || string.IsNullOrWhiteSpace(musicTag))

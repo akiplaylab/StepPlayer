@@ -8,8 +8,7 @@ public static class SmChartMetadata
     public static Dictionary<ChartDifficulty, int> LoadDifficultyMeters(string smFilePath)
     {
         var path = Path.Combine(Application.streamingAssetsPath, smFilePath);
-        var content = File.ReadAllText(path);
-        var tags = SmTagParser.ParseAllTags(content);
+        var tags = SmFileCache.GetAllTags(path);
 
         var results = new Dictionary<ChartDifficulty, int>();
         if (!tags.TryGetValue("NOTES", out var notesList))
