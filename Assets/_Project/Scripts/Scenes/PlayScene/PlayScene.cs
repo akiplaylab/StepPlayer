@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -47,12 +46,13 @@ public sealed class PlayScene : MonoBehaviour
 
     Chart chart;
     NoteViewPool notePool;
+    NoteSpawner noteSpawner;
+    InputJudge inputJudge;
+    ResultFlow resultFlow;
     double dspStartTime;
     double outputLatencySec;
-    int nextSpawnIndex;
     bool isEnding;
     float initialVolume;
-    double chartFinishedAtSongTime = double.NaN;
     SongMeta currentSong;
 
     readonly JudgementCounter counter = new();
@@ -85,7 +85,7 @@ public sealed class PlayScene : MonoBehaviour
     {
         ResultStore.Clear();
         counter.Reset();
-        UpdateComboDisplay();
+        comboText?.Show(counter.CurrentCombo);
 
         var song = (SelectedSong.Value ?? GetFallbackSong()) ?? throw new InvalidOperationException("No song selected and no fallback song available (catalog empty).");
         currentSong = song;
@@ -116,13 +116,18 @@ public sealed class PlayScene : MonoBehaviour
         dspStartTime = AudioSettings.dspTime + 0.2;
         audioSource.PlayScheduled(dspStartTime);
 
-        nextSpawnIndex = 0;
+        noteSpawner = new NoteSpawner(chart, notePool, spawnY, judgeLineY, travelTimeSec, laneXs, active);
+        inputJudge = new InputJudge(judge, comboText, judgementStyle, counter, notePool, active, GetFx);
+        resultFlow = new ResultFlow(endWhenChartFinished, endWhenChartFinishedDelaySec);
 
         Debug.Log($"Loaded song: {song.DisplayTitle}, notes: {chart.Notes.Count}, offset: {chart.OffsetSec:0.###}, bpm: {chart.Bpm:0.###}, outputLatency: {outputLatencySec:0.###}");
     }
 
     void Update()
     {
+        if (noteSpawner == null || inputJudge == null || resultFlow == null || chart == null)
+            return;
+
         if (AudioSettings.dspTime < dspStartTime)
             return;
 
@@ -131,147 +136,17 @@ public sealed class PlayScene : MonoBehaviour
 
         var songTime = GetSongTimeSec();
 
-        SpawnNotes(songTime);
-        UpdateNotePositions(songTime);
+        noteSpawner.SpawnNotes(songTime);
+        noteSpawner.UpdateNotePositions(songTime);
+        inputJudge.HandleInput(songTime);
+        inputJudge.CleanupMissed(songTime);
 
-        HandleInput(songTime);
-
-        CleanupMissed(songTime);
-
-        if (endWhenChartFinished)
-        {
-            bool allSpawned = nextSpawnIndex >= chart.Notes.Count;
-            bool noActiveNotes = active.Values.All(list => list.Count == 0);
-
-            if (allSpawned && noActiveNotes)
-            {
-                if (double.IsNaN(chartFinishedAtSongTime))
-                    chartFinishedAtSongTime = songTime;
-
-                if (songTime - chartFinishedAtSongTime >= endWhenChartFinishedDelaySec)
-                    EndToResult();
-
-                return;
-            }
-            else
-            {
-                chartFinishedAtSongTime = double.NaN;
-            }
-        }
-
-        if (nextSpawnIndex >= chart.Notes.Count && !audioSource.isPlaying)
-        {
+        if (resultFlow.ShouldEnd(songTime, noteSpawner.AllSpawned, active, audioSource.isPlaying))
             EndToResult();
-        }
     }
 
     double GetSongTimeSec()
     => (AudioSettings.dspTime - dspStartTime) - chart.OffsetSec - outputLatencySec;
-
-    void SpawnNotes(double songTime)
-    {
-        while (nextSpawnIndex < chart.Notes.Count)
-        {
-            var note = chart.Notes[nextSpawnIndex];
-            var noteTimeSec = chart.BeatToSeconds(note.Beat);
-            var travelTime = GetTravelTimeSec(note.Beat);
-            var spawnTime = noteTimeSec - travelTime;
-            if (songTime < spawnTime) break;
-
-            var view = notePool.Rent();
-            view.Init(note, noteTimeSec);
-            view.transform.position = new Vector3(GetLaneX(note.Lane), spawnY.position.y, 0);
-
-            active[note.Lane].AddLast(view);
-            nextSpawnIndex++;
-        }
-    }
-
-    void UpdateNotePositions(double songTime)
-    {
-        foreach (var lane in active.Keys.ToArray())
-        {
-            foreach (var n in active[lane])
-            {
-                var travelTime = GetTravelTimeSec(n.Beat);
-                var t = (float)((n.TimeSec - songTime) / travelTime);
-                var y = Mathf.LerpUnclamped(judgeLineY.position.y, spawnY.position.y, t);
-                var x = GetLaneX(lane);
-                n.transform.position = new Vector3(x, y, 0);
-            }
-        }
-    }
-
-    void HandleInput(double songTime)
-    {
-        TryHit(Lane.Left, KeyBindings.LanePressedThisFrame(Lane.Left), songTime);
-        TryHit(Lane.Down, KeyBindings.LanePressedThisFrame(Lane.Down), songTime);
-        TryHit(Lane.Up, KeyBindings.LanePressedThisFrame(Lane.Up), songTime);
-        TryHit(Lane.Right, KeyBindings.LanePressedThisFrame(Lane.Right), songTime);
-    }
-
-    void TryHit(Lane lane, bool pressed, double songTime)
-    {
-        if (!pressed) return;
-
-        var list = active[lane];
-        if (list.First == null)
-        {
-            Debug.Log($"{lane}: 空振り");
-            return;
-        }
-
-        var note = list.First.Value;
-        var dt = Math.Abs(note.TimeSec - songTime);
-
-        var judgement = judge.JudgeHit(lane, dt);
-        GetFx(lane).Play(judgement.Intensity);
-
-        if (judgement.ShouldConsumeNote)
-        {
-            counter.Record(judgement.Judgement);
-            list.RemoveFirst();
-            PlayBurstAndReturn(note, judgement.Judgement);
-            UpdateComboDisplay();
-        }
-    }
-
-    void CleanupMissed(double songTime)
-    {
-        foreach (var lane in active.Keys.ToArray())
-        {
-            var list = active[lane];
-            while (list.First != null)
-            {
-                var n = list.First.Value;
-                if (songTime <= n.TimeSec + judge.MissWindow) break;
-
-                counter.RecordMiss();
-                Debug.Log($"{lane}: Miss (late)");
-                list.RemoveFirst();
-                PlayBurstAndReturn(n, Judgement.Miss);
-
-                UpdateComboDisplay();
-            }
-        }
-    }
-
-    float GetLaneX(Lane lane)
-    {
-        var i = (int)lane;
-        if (laneXs == null || laneXs.Length < 4) return 0f;
-        if ((uint)i >= (uint)laneXs.Length) return 0f;
-        return laneXs[i];
-    }
-
-    float GetTravelTimeSec(double beat)
-    {
-        if (chart == null) return travelTimeSec;
-        var bpm = chart.GetBpmAtBeat(beat);
-        if (bpm <= 0) return travelTimeSec;
-        var scale = chart.Bpm / bpm;
-        return travelTimeSec * (float)scale;
-    }
 
     ReceptorHitEffect GetFx(Lane lane) => lane switch
     {
@@ -282,22 +157,6 @@ public sealed class PlayScene : MonoBehaviour
         _ => throw new InvalidDataException($"Invalid lane: {lane}"),
     };
 
-    void UpdateComboDisplay()
-    {
-        comboText?.Show(counter.CurrentCombo);
-    }
-
-    void PlayBurstAndReturn(NoteView note, Judgement judgement)
-    {
-        var style = judgementStyle != null ? judgementStyle : judge?.Style;
-        if (style == null)
-        {
-            notePool.Return(note);
-            return;
-        }
-
-        note.PlayHitBurst(style.GetColor(judgement), () => notePool.Return(note));
-    }
 
     public void EndToResult()
     {
