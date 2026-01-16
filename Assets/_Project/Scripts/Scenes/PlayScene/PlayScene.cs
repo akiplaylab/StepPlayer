@@ -89,8 +89,7 @@ public sealed class PlayScene : MonoBehaviour
         counter.Reset();
         UpdateComboDisplay();
 
-        var song = (SelectedSong.Value ?? GetFallbackSong())
-            ?? throw new InvalidOperationException("No song selected.");
+        var song = (SelectedSong.Value ?? GetFallbackSong()) ?? throw new InvalidOperationException("No song selected and no fallback song available (catalog empty).");
         currentSong = song;
         songInfoPresenter?.SetSong(song, song.ChartDifficulty);
 
@@ -101,11 +100,10 @@ public sealed class PlayScene : MonoBehaviour
         chart = ChartLoader.LoadFromStreamingAssets(chartRelativePath, song.ChartDifficulty);
 
         audioSource.clip = song.MusicClip;
-        initialVolume = audioSource.volume;
+        initialVolume = audioSource != null ? audioSource.volume : 1f;
 
         AudioSettings.GetDSPBufferSize(out var bufferLength, out var numBuffers);
-        outputLatencySec =
-            (double)bufferLength * numBuffers / AudioSettings.outputSampleRate;
+        outputLatencySec = (double)bufferLength * numBuffers / AudioSettings.outputSampleRate;
 
         dspStartTime = AudioSettings.dspTime + 0.2;
         audioSource.PlayScheduled(dspStartTime);
@@ -115,7 +113,10 @@ public sealed class PlayScene : MonoBehaviour
 
     void Update()
     {
-        if (AudioSettings.dspTime < dspStartTime || isEnding)
+        if (AudioSettings.dspTime < dspStartTime)
+            return;
+
+        if (isEnding)
             return;
 
         var songTime = GetSongTimeSec();
