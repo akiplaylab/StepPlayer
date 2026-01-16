@@ -150,9 +150,6 @@ public sealed class PlayScene : MonoBehaviour
            - chart.OffsetSec
            - outputLatencySec;
 
-    // ==========================
-    // ノーツ生成（拍距離基準）
-    // ==========================
     void SpawnNotes(double songTime)
     {
         double currentBeat = chart.SecondsToBeat(songTime);
@@ -176,33 +173,30 @@ public sealed class PlayScene : MonoBehaviour
         }
     }
 
-    // ==========================
-    // BPM変化完全対応スクロール
-    // ==========================
     void UpdateNotePositions(double songTime)
-{
-    double currentBeat = chart.SecondsToBeat(songTime);
-
-    foreach (var lane in active.Keys.ToArray())
     {
-        foreach (var n in active[lane])
+        double currentBeat = chart.SecondsToBeat(songTime);
+
+        foreach (var lane in active.Keys.ToArray())
         {
-            double beatDiff =
-                (n.Beat - currentBeat) * hiSpeed;
+            foreach (var n in active[lane])
+            {
+                double beatDiff =
+                    (n.Beat - currentBeat) * hiSpeed;
 
-            float t = (float)(beatDiff / beatsAhead);
+                float t = (float)(beatDiff / beatsAhead);
 
-            float y = Mathf.LerpUnclamped(
-                judgeLineY.position.y,
-                spawnY.position.y,
-                t
-            );
+                float y = Mathf.LerpUnclamped(
+                    judgeLineY.position.y,
+                    spawnY.position.y,
+                    t
+                );
 
-            n.transform.position =
-                new Vector3(GetLaneX(lane), y, 0);
+                n.transform.position =
+                    new Vector3(GetLaneX(lane), y, 0);
+            }
         }
     }
-}
 
     void HandleInput(double songTime)
     {

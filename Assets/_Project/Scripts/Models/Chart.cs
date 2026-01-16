@@ -24,9 +24,6 @@ public sealed class Chart
         BpmChanges = bpmChanges ?? throw new ArgumentNullException(nameof(bpmChanges));
     }
 
-    // -----------------------------
-    // Beat → Seconds（積分）
-    // -----------------------------
     public double BeatToSeconds(double beat)
     {
         double seconds = 0.0;
@@ -53,10 +50,6 @@ public sealed class Chart
         return seconds;
     }
 
-    // -----------------------------
-    // Seconds → Beat（逆積分）
-    // ★ BPM完全対応スクロールに必須
-    // -----------------------------
     public double SecondsToBeat(double seconds)
     {
         double remaining = seconds;
