@@ -22,24 +22,43 @@ public sealed class Chart
 
     public double BeatToSeconds(double beat)
     {
-        // BPM変化がない場合は、基本BPMから計算 (60/Bpm = 1拍の秒数)
-        if (BpmChanges == null || BpmChanges.Count == 0)
-            return beat * (60.0 / Bpm);
+        if (BpmChanges.Count == 0) return beat * (60.0 / Bpm);
 
         double seconds = 0;
         for (int i = 0; i < BpmChanges.Count; i++)
         {
             var current = BpmChanges[i];
             var nextBeat = (i + 1 < BpmChanges.Count) ? BpmChanges[i + 1].Beat : beat;
-
             if (beat <= current.Beat) break;
 
             var segmentEnd = Math.Min(beat, nextBeat);
-            if (segmentEnd > current.Beat)
-                seconds += (segmentEnd - current.Beat) * 60.0 / current.Bpm;
-
+            seconds += (segmentEnd - current.Beat) * 60.0 / current.Bpm;
             if (beat <= nextBeat) break;
         }
         return seconds;
+    }
+
+    // 追加: 現在の再生時間(sec)から、現在の累計Beatを算出する
+    public double SecondsToBeat(double seconds)
+    {
+        if (BpmChanges.Count == 0) return seconds / (60.0 / Bpm);
+
+        double currentSec = 0;
+        double currentBeat = 0;
+
+        for (int i = 0; i < BpmChanges.Count; i++)
+        {
+            var current = BpmChanges[i];
+            double nextBeat = (i + 1 < BpmChanges.Count) ? BpmChanges[i + 1].Beat : double.MaxValue;
+            double duration = (nextBeat - current.Beat) * 60.0 / current.Bpm;
+
+            if (seconds <= currentSec + duration)
+            {
+                return current.Beat + (seconds - currentSec) * (current.Bpm / 60.0);
+            }
+            currentSec += duration;
+            currentBeat = nextBeat;
+        }
+        return currentBeat;
     }
 }
