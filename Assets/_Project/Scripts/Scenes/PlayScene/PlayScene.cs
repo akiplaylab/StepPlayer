@@ -174,7 +174,8 @@ public sealed class PlayScene : MonoBehaviour
         {
             var note = chart.Notes[nextSpawnIndex];
             var noteTimeSec = chart.BeatToSeconds(note.Beat);
-            var spawnTime = noteTimeSec - travelTimeSec;
+            var travelTime = GetTravelTimeSec(note.Beat);
+            var spawnTime = noteTimeSec - travelTime;
             if (songTime < spawnTime) break;
 
             var view = notePool.Rent();
@@ -192,7 +193,8 @@ public sealed class PlayScene : MonoBehaviour
         {
             foreach (var n in active[lane])
             {
-                var t = (float)((n.TimeSec - songTime) / travelTimeSec);
+                var travelTime = GetTravelTimeSec(n.Beat);
+                var t = (float)((n.TimeSec - songTime) / travelTime);
                 var y = Mathf.LerpUnclamped(judgeLineY.position.y, spawnY.position.y, t);
                 var x = GetLaneX(lane);
                 n.transform.position = new Vector3(x, y, 0);
@@ -260,6 +262,15 @@ public sealed class PlayScene : MonoBehaviour
         if (laneXs == null || laneXs.Length < 4) return 0f;
         if ((uint)i >= (uint)laneXs.Length) return 0f;
         return laneXs[i];
+    }
+
+    float GetTravelTimeSec(double beat)
+    {
+        if (chart == null) return travelTimeSec;
+        var bpm = chart.GetBpmAtBeat(beat);
+        if (bpm <= 0) return travelTimeSec;
+        var scale = chart.Bpm / bpm;
+        return travelTimeSec * (float)scale;
     }
 
     ReceptorHitEffect GetFx(Lane lane) => lane switch
