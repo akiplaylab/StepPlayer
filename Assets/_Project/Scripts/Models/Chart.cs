@@ -44,4 +44,21 @@ public sealed class Chart
 
         return seconds;
     }
+
+    public double GetBpmAtBeat(double beat)
+    {
+        if (BpmChanges.Count == 0)
+            return Bpm;
+
+        double currentBpm = BpmChanges[0].Bpm;
+        for (int i = 0; i < BpmChanges.Count; i++)
+        {
+            if (BpmChanges[i].Beat > beat)
+                break;
+
+            currentBpm = BpmChanges[i].Bpm;
+        }
+
+        return currentBpm > 0 ? currentBpm : Bpm;
+    }
 }
