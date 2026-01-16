@@ -4,15 +4,19 @@ using System.Collections.Generic;
 public sealed class Chart
 {
     public string MusicFile { get; }
-    public int Bpm { get; }
+    public int Bpm { get; }              // 初期BPM
     public float OffsetSec { get; }
     public IReadOnlyList<Note> Notes { get; }
     public IReadOnlyList<BpmChange> BpmChanges { get; }
 
-    public Chart(string musicFile, int bpm, float offsetSec, IReadOnlyList<Note> notes, IReadOnlyList<BpmChange> bpmChanges)
+    public Chart(
+        string musicFile,
+        int bpm,
+        float offsetSec,
+        IReadOnlyList<Note> notes,
+        IReadOnlyList<BpmChange> bpmChanges)
     {
-        if (bpm <= 0) throw new ArgumentOutOfRangeException(nameof(bpm), "bpm must be > 0");
-
+        if (bpm <= 0) throw new ArgumentOutOfRangeException(nameof(bpm));
         MusicFile = musicFile;
         Bpm = bpm;
         OffsetSec = offsetSec;
@@ -20,28 +24,59 @@ public sealed class Chart
         BpmChanges = bpmChanges ?? throw new ArgumentNullException(nameof(bpmChanges));
     }
 
+    // -----------------------------
+    // Beat → Seconds（積分）
+    // -----------------------------
     public double BeatToSeconds(double beat)
     {
-        if (BpmChanges.Count == 0)
-            return beat * 0.5;
+        double seconds = 0.0;
+        double lastBeat = 0.0;
+        double currentBpm = Bpm;
 
-        double seconds = 0;
         for (int i = 0; i < BpmChanges.Count; i++)
         {
-            var current = BpmChanges[i];
-            var nextBeat = (i + 1 < BpmChanges.Count) ? BpmChanges[i + 1].Beat : beat;
+            var change = BpmChanges[i];
 
-            if (beat <= current.Beat)
+            if (beat <= change.Beat)
                 break;
 
-            var segmentEnd = Math.Min(beat, nextBeat);
-            if (segmentEnd > current.Beat)
-                seconds += (segmentEnd - current.Beat) * 60.0 / current.Bpm;
+            double segmentEnd = Math.Min(beat, change.Beat);
+            seconds += (segmentEnd - lastBeat) * 60.0 / currentBpm;
 
-            if (beat <= nextBeat)
-                break;
+            currentBpm = change.Bpm;
+            lastBeat = change.Beat;
         }
 
+        if (beat > lastBeat)
+            seconds += (beat - lastBeat) * 60.0 / currentBpm;
+
         return seconds;
+    }
+
+    // -----------------------------
+    // Seconds → Beat（逆積分）
+    // ★ BPM完全対応スクロールに必須
+    // -----------------------------
+    public double SecondsToBeat(double seconds)
+    {
+        double remaining = seconds;
+        double lastBeat = 0.0;
+        double currentBpm = Bpm;
+
+        for (int i = 0; i < BpmChanges.Count; i++)
+        {
+            var change = BpmChanges[i];
+            double segmentBeats = change.Beat - lastBeat;
+            double segmentSeconds = segmentBeats * 60.0 / currentBpm;
+
+            if (remaining <= segmentSeconds)
+                return lastBeat + remaining * currentBpm / 60.0;
+
+            remaining -= segmentSeconds;
+            currentBpm = change.Bpm;
+            lastBeat = change.Beat;
+        }
+
+        return lastBeat + remaining * currentBpm / 60.0;
     }
 }
