@@ -56,7 +56,7 @@ public static class ChartLoader
         if (!tags.TryGetValue("NOTES", out var list))
             throw new InvalidDataException("No NOTES section found in simfile.");
 
-        var difficultyName = DifficultyToSmName(difficulty);
+        var difficultyName = ChartDifficultyMapper.ToSmName(difficulty);
 
         foreach (var entry in list)
         {
@@ -146,19 +146,6 @@ public static class ChartLoader
         return double.TryParse(value.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out var result)
             ? result
             : fallback;
-    }
-
-    static string DifficultyToSmName(ChartDifficulty difficulty)
-    {
-        return difficulty switch
-        {
-            ChartDifficulty.Beginner => "Beginner",
-            ChartDifficulty.Easy => "Easy",
-            ChartDifficulty.Medium => "Medium",
-            ChartDifficulty.Hard => "Hard",
-            ChartDifficulty.Challenge => "Challenge",
-            _ => "Beginner",
-        };
     }
 
 }
