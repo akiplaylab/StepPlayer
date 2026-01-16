@@ -22,7 +22,8 @@ public sealed class Chart
 
     public double BeatToSeconds(double beat)
     {
-        if (BpmChanges.Count == 0)
+        // BPM変化がない場合は、基本BPMから計算 (60/Bpm = 1拍の秒数)
+        if (BpmChanges == null || BpmChanges.Count == 0)
             return beat * (60.0 / Bpm);
 
         double seconds = 0;
@@ -31,17 +32,14 @@ public sealed class Chart
             var current = BpmChanges[i];
             var nextBeat = (i + 1 < BpmChanges.Count) ? BpmChanges[i + 1].Beat : beat;
 
-            if (beat <= current.Beat)
-                break;
+            if (beat <= current.Beat) break;
 
             var segmentEnd = Math.Min(beat, nextBeat);
             if (segmentEnd > current.Beat)
                 seconds += (segmentEnd - current.Beat) * 60.0 / current.Bpm;
 
-            if (beat <= nextBeat)
-                break;
+            if (beat <= nextBeat) break;
         }
-
         return seconds;
     }
 }
