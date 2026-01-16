@@ -76,7 +76,7 @@ public sealed class PlayScene : MonoBehaviour
         if (notesRoot == null)
         {
             var go = new GameObject("Notes");
-            go.transform.SetParent(transform, false);
+            go.transform.SetParent(transform, worldPositionStays: false);
             notesRoot = go.transform;
         }
 
