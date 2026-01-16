@@ -59,7 +59,14 @@ public sealed class PlayScene : MonoBehaviour
 
     readonly JudgementCounter counter = new();
 
-    readonly Dictionary<Lane, LinkedList<NoteView>> active = new()
+    // NoteViewと譜面データのBeat値をセットで管理するための構造体（軽量化のため）
+    struct ActiveNote
+    {
+        public NoteView View;
+        public double Beat;
+    }
+
+    readonly Dictionary<Lane, LinkedList<ActiveNote>> active = new()
     {
         [Lane.Left] = new(),
         [Lane.Down] = new(),
@@ -143,7 +150,6 @@ public sealed class PlayScene : MonoBehaviour
         if (endWhenChartFinished)
         {
             bool allSpawned = nextSpawnIndex >= chart.Notes.Count;
-            // 判定中のノーツがすべてのレーンでゼロか確認
             bool noActiveNotes = true;
             foreach(var list in active.Values) 
             {
@@ -182,43 +188,40 @@ public sealed class PlayScene : MonoBehaviour
             var note = chart.Notes[nextSpawnIndex];
             var noteTimeSec = chart.BeatToSeconds(note.Beat);
             
-            // BPMに関わらず、判定の5秒前には生成（余裕を持ったバッファ）
             if (songTime < noteTimeSec - 5.0) break;
 
             var view = notePool.Rent();
             view.Init(note, noteTimeSec);
             view.transform.position = new Vector3(GetLaneX(note.Lane), spawnY.position.y, 0);
 
-            active[note.Lane].AddLast(view);
+            // NoteViewと一緒に譜面上のBeatも保存しておくことで、エラーを回避
+            active[note.Lane].AddLast(new ActiveNote { View = view, Beat = note.Beat });
             nextSpawnIndex++;
         }
     }
 
     void UpdateNotePositions(double songTime)
     {
-        // 現在の秒数から、チャート上の現在の拍（Beat）を計算
         double currentBeat = chart.SecondsToBeat(songTime);
         float startY = judgeLineY.position.y;
         float endY = spawnY.position.y;
 
-        // active.Keys.ToArray()を使わず、列挙時のアロケーションを抑制
         foreach (var pair in active)
         {
             var list = pair.Value;
-            var lane = pair.Key;
-            float x = GetLaneX(lane);
+            float x = GetLaneX(pair.Key);
 
             var node = list.First;
             while (node != null)
             {
                 var nextNode = node.Next;
-                var view = node.Value;
+                var activeNote = node.Value;
                 
-                // (ノーツの拍 - 現在の拍) / 表示範囲 = 0(判定線) ～ 1(出現点)
-                float t = (float)((view.Note.Beat - currentBeat) / visibleBeatRange);
+                // view.Note.Beat の代わりに保存しておいた activeNote.Beat を使用
+                float t = (float)((activeNote.Beat - currentBeat) / visibleBeatRange);
                 float y = Mathf.LerpUnclamped(startY, endY, t);
                 
-                view.transform.position = new Vector3(x, y, 0);
+                activeNote.View.transform.position = new Vector3(x, y, 0);
                 node = nextNode;
             }
         }
@@ -239,8 +242,8 @@ public sealed class PlayScene : MonoBehaviour
         var list = active[lane];
         if (list.First == null) return;
 
-        var note = list.First.Value;
-        var dt = Math.Abs(note.TimeSec - songTime);
+        var activeNote = list.First.Value;
+        var dt = Math.Abs(activeNote.View.TimeSec - songTime);
 
         var judgement = judge.JudgeHit(lane, dt);
         GetFx(lane).Play(judgement.Intensity);
@@ -249,7 +252,7 @@ public sealed class PlayScene : MonoBehaviour
         {
             counter.Record(judgement.Judgement);
             list.RemoveFirst();
-            PlayBurstAndReturn(note, judgement.Judgement);
+            PlayBurstAndReturn(activeNote.View, judgement.Judgement);
             UpdateComboDisplay();
         }
     }
@@ -259,15 +262,14 @@ public sealed class PlayScene : MonoBehaviour
         foreach (var pair in active)
         {
             var list = pair.Value;
-            var lane = pair.Key;
             while (list.First != null)
             {
                 var n = list.First.Value;
-                if (songTime <= n.TimeSec + judge.MissWindow) break;
+                if (songTime <= n.View.TimeSec + judge.MissWindow) break;
 
                 counter.RecordMiss();
                 list.RemoveFirst();
-                PlayBurstAndReturn(n, Judgement.Miss);
+                PlayBurstAndReturn(n.View, Judgement.Miss);
                 UpdateComboDisplay();
             }
         }
