@@ -23,7 +23,7 @@ public sealed class Chart
     public double BeatToSeconds(double beat)
     {
         if (BpmChanges.Count == 0)
-            return beat * 0.5;
+            return beat * (60.0 / Bpm);
 
         double seconds = 0;
         for (int i = 0; i < BpmChanges.Count; i++)
