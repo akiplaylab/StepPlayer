@@ -23,7 +23,7 @@ public static class ChartLoader
     static Chart LoadFromSm(string path, ChartDifficulty difficulty)
     {
         var content = File.ReadAllText(path);
-        var tags = ParseSmTags(content);
+        var tags = SmTagParser.ParseAllTags(content);
 
         var music = GetFirstTag(tags, "MUSIC");
         var offset = ParseDouble(GetFirstTag(tags, "OFFSET"), 0.0);
@@ -46,35 +46,6 @@ public static class ChartLoader
         return new Chart(music, baseBpm, (float)(-offset), ordered, bpmChanges);
     }
 
-    static Dictionary<string, List<string>> ParseSmTags(string content)
-    {
-        var tags = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-        int index = 0;
-        while (index < content.Length)
-        {
-            var tagStart = content.IndexOf('#', index);
-            if (tagStart < 0) break;
-            var colon = content.IndexOf(':', tagStart + 1);
-            if (colon < 0) break;
-            var semicolon = content.IndexOf(';', colon + 1);
-            if (semicolon < 0) break;
-
-            var tag = content.Substring(tagStart + 1, colon - tagStart - 1).Trim();
-            var value = content.Substring(colon + 1, semicolon - colon - 1);
-
-            if (!tags.TryGetValue(tag, out var list))
-            {
-                list = new List<string>();
-                tags[tag] = list;
-            }
-
-            list.Add(value);
-            index = semicolon + 1;
-        }
-
-        return tags;
-    }
-
     static string GetFirstTag(Dictionary<string, List<string>> tags, string name)
     {
         return tags.TryGetValue(name, out var list) && list.Count > 0 ? list[0] : string.Empty;
@@ -85,7 +56,7 @@ public static class ChartLoader
         if (!tags.TryGetValue("NOTES", out var list))
             throw new InvalidDataException("No NOTES section found in simfile.");
 
-        var difficultyName = DifficultyToSmName(difficulty);
+        var difficultyName = ChartDifficultyUtil.ToSmName(difficulty);
 
         foreach (var entry in list)
         {
@@ -175,19 +146,6 @@ public static class ChartLoader
         return double.TryParse(value.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out var result)
             ? result
             : fallback;
-    }
-
-    static string DifficultyToSmName(ChartDifficulty difficulty)
-    {
-        return difficulty switch
-        {
-            ChartDifficulty.Beginner => "Beginner",
-            ChartDifficulty.Easy => "Easy",
-            ChartDifficulty.Medium => "Medium",
-            ChartDifficulty.Hard => "Hard",
-            ChartDifficulty.Challenge => "Challenge",
-            _ => "Beginner",
-        };
     }
 
 }
