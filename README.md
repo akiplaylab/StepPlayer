@@ -74,16 +74,3 @@ Songs/
 
 ### Source Code
 All source code in this repository is released under the CC0 1.0 Universal license.
-
-### Music Assets
-
-- `Dance Mood`
-  - Artist: SoulProdMusic
-  - Source: Pixabay
-  - License: Pixabay Content License
-
-- `Starry Stella`
-  - Artist: SameGames
-  - Original composition by a collaborator
-  - Released under a CC0-equivalent license
-  - Attribution is appreciated but not required
