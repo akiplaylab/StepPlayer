@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -24,7 +24,7 @@ public sealed class PlayScene : MonoBehaviour
     [SerializeField] NoteView notePrefab;
     [SerializeField] Transform spawnY;
     [SerializeField] Transform judgeLineY;
-    [SerializeField] float travelTimeSec = 2.6f;
+    [SerializeField] float beatsShown = 4.0f;
 
     [Header("Lane X positions (Left, Down, Up, Right)")]
     readonly float[] laneXs = { -2.6f, -0.85f, 0.85f, 2.6f };
@@ -54,6 +54,7 @@ public sealed class PlayScene : MonoBehaviour
     float initialVolume;
     double chartFinishedAtSongTime = double.NaN;
     SongMeta currentSong;
+    float currentTravelTimeSec;
 
     readonly JudgementCounter counter = new();
 
@@ -100,6 +101,8 @@ public sealed class PlayScene : MonoBehaviour
         var chartRelativePath = GetRelativeStreamingAssetsPath(song.SmFilePath);
         chart = ChartLoader.LoadFromStreamingAssets(chartRelativePath, song.ChartDifficulty);
 
+        currentTravelTimeSec = (float)((60.0 / chart.Bpm) * beatsShown);
+
         audioSource.clip = song.MusicClip;
 
         initialVolume = audioSource != null ? audioSource.volume : 1f;
@@ -118,7 +121,7 @@ public sealed class PlayScene : MonoBehaviour
 
         nextSpawnIndex = 0;
 
-        Debug.Log($"Loaded song: {song.DisplayTitle}, notes: {chart.Notes.Count}, offset: {chart.OffsetSec:0.###}, bpm: {chart.Bpm:0.###}, outputLatency: {outputLatencySec:0.###}");
+        Debug.Log($"Loaded song: {song.DisplayTitle}, notes: {chart.Notes.Count}, BPM: {chart.Bpm}, TravelTime: {currentTravelTimeSec:F2}s");
     }
 
     void Update()
@@ -174,7 +177,7 @@ public sealed class PlayScene : MonoBehaviour
         {
             var note = chart.Notes[nextSpawnIndex];
             var noteTimeSec = chart.BeatToSeconds(note.Beat);
-            var spawnTime = noteTimeSec - travelTimeSec;
+            var spawnTime = noteTimeSec - currentTravelTimeSec;
             if (songTime < spawnTime) break;
 
             var view = notePool.Rent();
@@ -192,7 +195,8 @@ public sealed class PlayScene : MonoBehaviour
         {
             foreach (var n in active[lane])
             {
-                var t = (float)((n.TimeSec - songTime) / travelTimeSec);
+                // 修正：currentTravelTimeSec を使用
+                var t = (float)((n.TimeSec - songTime) / currentTravelTimeSec);
                 var y = Mathf.LerpUnclamped(judgeLineY.position.y, spawnY.position.y, t);
                 var x = GetLaneX(lane);
                 n.transform.position = new Vector3(x, y, 0);
