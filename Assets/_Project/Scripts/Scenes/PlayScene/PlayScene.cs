@@ -24,13 +24,18 @@ public sealed class PlayScene : MonoBehaviour
     [SerializeField] NoteView notePrefab;
     [SerializeField] Transform spawnY;
     [SerializeField] Transform judgeLineY;
-    [SerializeField] float beatsShown = 4.0f;
+    
+    // travelTimeSecの代わりに、画面内に表示する拍数を指定（BPM依存スクロール）
+    [SerializeField] float visibleBeatRange = 4.0f;
 
-    [Header("Lane X positions")]
+    [Header("Lane X positions (Left, Down, Up, Right)")]
     readonly float[] laneXs = { -2.6f, -0.85f, 0.85f, 2.6f };
 
-    [Header("Receptor Effects")]
-    [SerializeField] ReceptorHitEffect leftFx, downFx, upFx, rightFx;
+    [Header("Receptor Effects (fixed lanes)")]
+    [SerializeField] ReceptorHitEffect leftFx;
+    [SerializeField] ReceptorHitEffect downFx;
+    [SerializeField] ReceptorHitEffect upFx;
+    [SerializeField] ReceptorHitEffect rightFx;
 
     [Header("Judgement")]
     [SerializeField] Judge judge;
@@ -38,32 +43,43 @@ public sealed class PlayScene : MonoBehaviour
     [SerializeField] JudgementStyle judgementStyle;
 
     [SerializeField] float endFadeOutSec = 0.4f;
+
     [SerializeField] bool endWhenChartFinished = true;
     [SerializeField] float endWhenChartFinishedDelaySec = 0.8f;
 
     Chart chart;
     NoteViewPool notePool;
-    double dspStartTime, outputLatencySec;
+    double dspStartTime;
+    double outputLatencySec;
     int nextSpawnIndex;
     bool isEnding;
     float initialVolume;
     double chartFinishedAtSongTime = double.NaN;
     SongMeta currentSong;
-    
-    // BPM管理用
-    float currentTravelTimeSec;
-    int bpmChangeIndex = 0;
-    double nextBpmChangeTime = double.MaxValue;
 
     readonly JudgementCounter counter = new();
-    readonly Dictionary<Lane, LinkedList<NoteView>> active = new() {
-        [Lane.Left] = new(), [Lane.Down] = new(), [Lane.Up] = new(), [Lane.Right] = new()
+
+    readonly Dictionary<Lane, LinkedList<NoteView>> active = new()
+    {
+        [Lane.Left] = new(),
+        [Lane.Down] = new(),
+        [Lane.Up] = new(),
+        [Lane.Right] = new(),
     };
 
     void Awake()
     {
         loader = GetComponent<StreamingAssetLoader>();
-        if (songInfoPresenter == null) songInfoPresenter = gameObject.AddComponent<PlaySceneSongInfoPresenter>();
+        if (songInfoPresenter == null)
+            songInfoPresenter = gameObject.AddComponent<PlaySceneSongInfoPresenter>();
+
+        if (notesRoot == null)
+        {
+            var go = new GameObject("Notes");
+            go.transform.SetParent(transform, worldPositionStays: false);
+            notesRoot = go.transform;
+        }
+
         notePool = new NoteViewPool(notePrefab, notesRoot, prewarm: 16);
     }
 
@@ -73,70 +89,91 @@ public sealed class PlayScene : MonoBehaviour
         counter.Reset();
         UpdateComboDisplay();
 
-        var song = (SelectedSong.Value ?? GetFallbackSong()) ?? throw new InvalidOperationException("No song selected.");
+        var song = (SelectedSong.Value ?? GetFallbackSong()) ?? throw new InvalidOperationException("No song selected and no fallback song available (catalog empty).");
         currentSong = song;
         songInfoPresenter?.SetSong(song, song.ChartDifficulty);
 
-        if (song.MusicClip == null) yield return loader.LoadAudioClip(song, clip => song.MusicClip = clip);
-        
-        chart = ChartLoader.LoadFromStreamingAssets(GetRelativeStreamingAssetsPath(song.SmFilePath), song.ChartDifficulty);
+        if (song.MusicClip == null)
+            yield return loader.LoadAudioClip(song, clip => song.MusicClip = clip);
 
-        // BPM初期設定
-        bpmChangeIndex = 0;
-        ApplyBpm(chart.Bpm);
-        if (chart.BpmChanges != null && chart.BpmChanges.Count > 0)
-            nextBpmChangeTime = chart.BeatToSeconds(chart.BpmChanges[0].Beat);
+        if (song.MusicClip == null)
+            throw new InvalidOperationException($"SongMeta.MusicClip が未設定です: {song.SmFilePath}");
+
+        var chartRelativePath = GetRelativeStreamingAssetsPath(song.SmFilePath);
+        chart = ChartLoader.LoadFromStreamingAssets(chartRelativePath, song.ChartDifficulty);
 
         audioSource.clip = song.MusicClip;
+
         initialVolume = audioSource != null ? audioSource.volume : 1f;
-        
+
+        if (!song.MusicClip.preloadAudioData)
+            song.MusicClip.LoadAudioData();
+
+        while (song.MusicClip.loadState == AudioDataLoadState.Loading)
+            yield return null;
+
         AudioSettings.GetDSPBufferSize(out var bufferLength, out var numBuffers);
         outputLatencySec = (double)bufferLength * numBuffers / AudioSettings.outputSampleRate;
+
         dspStartTime = AudioSettings.dspTime + 0.2;
         audioSource.PlayScheduled(dspStartTime);
+
+        nextSpawnIndex = 0;
+
+        Debug.Log($"Loaded song: {song.DisplayTitle}, notes: {chart.Notes.Count}, offset: {chart.OffsetSec:0.###}, bpm: {chart.Bpm:0.###}");
     }
 
     void Update()
     {
-        if (AudioSettings.dspTime < dspStartTime || isEnding) return;
+        if (AudioSettings.dspTime < dspStartTime)
+            return;
 
-        double songTime = GetSongTimeSec();
+        if (isEnding)
+            return;
 
-        // BPM変化のチェック
-        if (songTime >= nextBpmChangeTime) UpdateCurrentBpm(songTime);
+        var songTime = GetSongTimeSec();
 
         SpawnNotes(songTime);
         UpdateNotePositions(songTime);
+
         HandleInput(songTime);
+
         CleanupMissed(songTime);
 
-        // 終了判定
         if (endWhenChartFinished)
         {
-            if (nextSpawnIndex >= chart.Notes.Count && active.Values.All(l => l.Count == 0))
+            bool allSpawned = nextSpawnIndex >= chart.Notes.Count;
+            // 判定中のノーツがすべてのレーンでゼロか確認
+            bool noActiveNotes = true;
+            foreach(var list in active.Values) 
             {
-                if (double.IsNaN(chartFinishedAtSongTime)) chartFinishedAtSongTime = songTime;
-                if (songTime - chartFinishedAtSongTime >= endWhenChartFinishedDelaySec) EndToResult();
+                if (list.Count > 0) { noActiveNotes = false; break; }
             }
-            else { chartFinishedAtSongTime = double.NaN; }
-        }
-    }
 
-    void UpdateCurrentBpm(double songTime)
-    {
-        while (bpmChangeIndex < chart.BpmChanges.Count && songTime >= chart.BeatToSeconds(chart.BpmChanges[bpmChangeIndex].Beat))
+            if (allSpawned && noActiveNotes)
+            {
+                if (double.IsNaN(chartFinishedAtSongTime))
+                    chartFinishedAtSongTime = songTime;
+
+                if (songTime - chartFinishedAtSongTime >= endWhenChartFinishedDelaySec)
+                    EndToResult();
+
+                return;
+            }
+            else
+            {
+                chartFinishedAtSongTime = double.NaN;
+            }
+        }
+
+        if (nextSpawnIndex >= chart.Notes.Count && !audioSource.isPlaying)
         {
-            ApplyBpm(chart.BpmChanges[bpmChangeIndex].Bpm);
-            bpmChangeIndex++;
+            EndToResult();
         }
-        nextBpmChangeTime = (bpmChangeIndex < chart.BpmChanges.Count) 
-            ? chart.BeatToSeconds(chart.BpmChanges[bpmChangeIndex].Beat) 
-            : double.MaxValue;
     }
 
-    void ApplyBpm(double bpm) => currentTravelTimeSec = (float)((60.0 / bpm) * beatsShown);
-
-    double GetSongTimeSec() => (AudioSettings.dspTime - dspStartTime) - chart.OffsetSec - outputLatencySec;
+    double GetSongTimeSec()
+    => (AudioSettings.dspTime - dspStartTime) - chart.OffsetSec - outputLatencySec;
 
     void SpawnNotes(double songTime)
     {
@@ -144,10 +181,14 @@ public sealed class PlayScene : MonoBehaviour
         {
             var note = chart.Notes[nextSpawnIndex];
             var noteTimeSec = chart.BeatToSeconds(note.Beat);
-            if (songTime < noteTimeSec - currentTravelTimeSec) break;
+            
+            // BPMに関わらず、判定の5秒前には生成（余裕を持ったバッファ）
+            if (songTime < noteTimeSec - 5.0) break;
 
             var view = notePool.Rent();
             view.Init(note, noteTimeSec);
+            view.transform.position = new Vector3(GetLaneX(note.Lane), spawnY.position.y, 0);
+
             active[note.Lane].AddLast(view);
             nextSpawnIndex++;
         }
@@ -155,15 +196,30 @@ public sealed class PlayScene : MonoBehaviour
 
     void UpdateNotePositions(double songTime)
     {
-        float jY = judgeLineY.position.y;
-        float sY = spawnY.position.y;
-        foreach (var lane in active.Keys)
+        // 現在の秒数から、チャート上の現在の拍（Beat）を計算
+        double currentBeat = chart.SecondsToBeat(songTime);
+        float startY = judgeLineY.position.y;
+        float endY = spawnY.position.y;
+
+        // active.Keys.ToArray()を使わず、列挙時のアロケーションを抑制
+        foreach (var pair in active)
         {
+            var list = pair.Value;
+            var lane = pair.Key;
             float x = GetLaneX(lane);
-            foreach (var n in active[lane])
+
+            var node = list.First;
+            while (node != null)
             {
-                float t = (float)((n.TimeSec - songTime) / currentTravelTimeSec);
-                n.transform.position = new Vector3(x, Mathf.LerpUnclamped(jY, sY, t), 0);
+                var nextNode = node.Next;
+                var view = node.Value;
+                
+                // (ノーツの拍 - 現在の拍) / 表示範囲 = 0(判定線) ～ 1(出現点)
+                float t = (float)((view.Note.Beat - currentBeat) / visibleBeatRange);
+                float y = Mathf.LerpUnclamped(startY, endY, t);
+                
+                view.transform.position = new Vector3(x, y, 0);
+                node = nextNode;
             }
         }
     }
@@ -179,11 +235,13 @@ public sealed class PlayScene : MonoBehaviour
     void TryHit(Lane lane, bool pressed, double songTime)
     {
         if (!pressed) return;
+
         var list = active[lane];
         if (list.First == null) return;
 
         var note = list.First.Value;
         var dt = Math.Abs(note.TimeSec - songTime);
+
         var judgement = judge.JudgeHit(lane, dt);
         GetFx(lane).Play(judgement.Intensity);
 
@@ -198,13 +256,15 @@ public sealed class PlayScene : MonoBehaviour
 
     void CleanupMissed(double songTime)
     {
-        foreach (var lane in active.Keys.ToArray())
+        foreach (var pair in active)
         {
-            var list = active[lane];
+            var list = pair.Value;
+            var lane = pair.Key;
             while (list.First != null)
             {
                 var n = list.First.Value;
                 if (songTime <= n.TimeSec + judge.MissWindow) break;
+
                 counter.RecordMiss();
                 list.RemoveFirst();
                 PlayBurstAndReturn(n, Judgement.Miss);
@@ -213,14 +273,36 @@ public sealed class PlayScene : MonoBehaviour
         }
     }
 
-    float GetLaneX(Lane lane) => (uint)lane < laneXs.Length ? laneXs[(int)lane] : 0f;
-    ReceptorHitEffect GetFx(Lane lane) => lane switch { Lane.Left => leftFx, Lane.Down => downFx, Lane.Up => upFx, Lane.Right => rightFx, _ => null };
-    void UpdateComboDisplay() => comboText?.Show(counter.CurrentCombo);
+    float GetLaneX(Lane lane)
+    {
+        int i = (int)lane;
+        if (laneXs == null || (uint)i >= (uint)laneXs.Length) return 0f;
+        return laneXs[i];
+    }
+
+    ReceptorHitEffect GetFx(Lane lane) => lane switch
+    {
+        Lane.Left => leftFx,
+        Lane.Down => downFx,
+        Lane.Up => upFx,
+        Lane.Right => rightFx,
+        _ => throw new InvalidDataException($"Invalid lane: {lane}"),
+    };
+
+    void UpdateComboDisplay()
+    {
+        comboText?.Show(counter.CurrentCombo);
+    }
 
     void PlayBurstAndReturn(NoteView note, Judgement judgement)
     {
-        var style = judgementStyle ?? judge?.Style;
-        if (style == null) { notePool.Return(note); return; }
+        var style = judgementStyle != null ? judgementStyle : judge?.Style;
+        if (style == null)
+        {
+            notePool.Return(note);
+            return;
+        }
+
         note.PlayHitBurst(style.GetColor(judgement), () => notePool.Return(note));
     }
 
@@ -236,38 +318,47 @@ public sealed class PlayScene : MonoBehaviour
         if (audioSource != null)
         {
             float from = audioSource.volume;
+            float t = 0f;
             float dur = Mathf.Max(0.01f, endFadeOutSec);
-            for (float t = 0; t < dur; t += Time.unscaledDeltaTime)
+
+            while (t < dur)
             {
+                t += Time.unscaledDeltaTime;
                 audioSource.volume = Mathf.Lerp(from, 0f, t / dur);
                 yield return null;
             }
+
             audioSource.Stop();
             audioSource.volume = initialVolume;
         }
 
-        // リザルト画面へのデータ転送（復元）
         ResultStore.Summary = counter.CreateSummary(chart?.Notes.Count ?? 0);
         ResultStore.HasSummary = true;
         if (currentSong != null)
         {
             ResultStore.SongTitle = currentSong.DisplayTitle;
-            ResultStore.MusicSource = currentSong.Artist ?? string.Empty;
+            ResultStore.MusicSource = string.IsNullOrWhiteSpace(currentSong.Artist) ? string.Empty : currentSong.Artist;
             ResultStore.ChartDifficulty = currentSong.ChartDifficulty;
         }
 
         SceneManager.LoadScene(nameof(ResultScene));
     }
 
-    SongMeta GetFallbackSong() {
+    SongMeta GetFallbackSong()
+    {
         var songs = SongCatalog.BuildCatalog();
-        return songs.Count > 0 ? songs[Mathf.Clamp(fallbackSongIndex, 0, songs.Count - 1)] : null;
+        if (songs.Count == 0) return null;
+        var index = Mathf.Clamp(fallbackSongIndex, 0, songs.Count - 1);
+        return songs[index];
     }
 
-    static string GetRelativeStreamingAssetsPath(string fullPath) {
+    static string GetRelativeStreamingAssetsPath(string fullPath)
+    {
         var root = Application.streamingAssetsPath;
-        return fullPath.StartsWith(root, StringComparison.OrdinalIgnoreCase) 
-            ? fullPath[root.Length..].TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) 
-            : fullPath;
+        if (fullPath.StartsWith(root, StringComparison.OrdinalIgnoreCase))
+        {
+            return fullPath[root.Length..].TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        }
+        return fullPath;
     }
 }
