@@ -9,14 +9,9 @@ public sealed class Chart
     public IReadOnlyList<Note> Notes { get; }
     public IReadOnlyList<BpmChange> BpmChanges { get; }
 
-    public Chart(
-        string musicFile,
-        int bpm,
-        float offsetSec,
-        IReadOnlyList<Note> notes,
-        IReadOnlyList<BpmChange> bpmChanges)
+    public Chart(string musicFile, int bpm, float offsetSec, IReadOnlyList<Note> notes, IReadOnlyList<BpmChange> bpmChanges)
     {
-        if (bpm <= 0) throw new ArgumentOutOfRangeException(nameof(bpm));
+        if (bpm <= 0) throw new ArgumentOutOfRangeException(nameof(bpm), "bpm must be > 0");
         MusicFile = musicFile;
         Bpm = bpm;
         OffsetSec = offsetSec;
