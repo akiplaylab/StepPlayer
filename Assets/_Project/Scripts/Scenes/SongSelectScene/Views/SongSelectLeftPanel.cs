@@ -10,7 +10,8 @@ public sealed class SongSelectLeftPanel : MonoBehaviour
     [Header("Song Header")]
     [SerializeField] Image bannerImage;
     [SerializeField] LayoutElement bannerLayoutElement;
-    [SerializeField] Vector2 bannerMaxSize = new(480f, 160f);
+    [SerializeField] Vector2 bannerSize = new(256f, 80f);
+    [SerializeField] float bannerAspectRatio = 3.2f;
     [SerializeField] TMP_Text titleText;
     [SerializeField] TMP_Text artistText;
 
@@ -144,11 +145,12 @@ public sealed class SongSelectLeftPanel : MonoBehaviour
         image.preserveAspect = true;
 
         var layoutElement = go.AddComponent<LayoutElement>();
-        layoutElement.preferredWidth = bannerMaxSize.x;
-        layoutElement.preferredHeight = bannerMaxSize.y;
+        layoutElement.preferredWidth = bannerSize.x;
+        layoutElement.preferredHeight = bannerSize.y;
 
         var fitter = go.AddComponent<AspectRatioFitter>();
         fitter.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+        fitter.aspectRatio = bannerAspectRatio;
 
         return image;
     }
@@ -174,11 +176,8 @@ public sealed class SongSelectLeftPanel : MonoBehaviour
 
         if (bannerLayoutElement != null)
         {
-            var maxWidth = bannerMaxSize.x <= 0f ? texture.width : bannerMaxSize.x;
-            var maxHeight = bannerMaxSize.y <= 0f ? texture.height : bannerMaxSize.y;
-            var scale = Mathf.Min(1f, maxWidth / texture.width, maxHeight / texture.height);
-            bannerLayoutElement.preferredWidth = texture.width * scale;
-            bannerLayoutElement.preferredHeight = texture.height * scale;
+            bannerLayoutElement.preferredWidth = bannerSize.x;
+            bannerLayoutElement.preferredHeight = bannerSize.y;
         }
     }
 
