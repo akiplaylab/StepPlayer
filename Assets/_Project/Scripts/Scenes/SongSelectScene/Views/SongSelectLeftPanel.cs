@@ -8,6 +8,9 @@ using UnityEngine.UI;
 public sealed class SongSelectLeftPanel : MonoBehaviour
 {
     [Header("Song Header")]
+    [SerializeField] Image bannerImage;
+    [SerializeField] LayoutElement bannerLayoutElement;
+    [SerializeField] Vector2 bannerMaxSize = new(480f, 160f);
     [SerializeField] TMP_Text titleText;
     [SerializeField] TMP_Text artistText;
 
@@ -51,6 +54,7 @@ public sealed class SongSelectLeftPanel : MonoBehaviour
 
         EnsureRuntimeUi();
 
+        UpdateBanner(song);
         titleText.text = song.DisplayTitle;
         artistText.text = string.IsNullOrWhiteSpace(song.Artist) ? "Unknown Artist" : song.Artist;
 
@@ -60,7 +64,7 @@ public sealed class SongSelectLeftPanel : MonoBehaviour
 
     void EnsureRuntimeUi()
     {
-        if (titleText != null && artistText != null && difficultyRoot != null && bpmText != null && lengthText != null && notesText != null)
+        if (titleText != null && artistText != null && difficultyRoot != null && bpmText != null && lengthText != null && notesText != null && bannerImage != null)
             return;
 
         var root = new GameObject("LeftPanelContent", typeof(RectTransform));
@@ -82,6 +86,9 @@ public sealed class SongSelectLeftPanel : MonoBehaviour
         var headerLayout = header.AddComponent<VerticalLayoutGroup>();
         headerLayout.childAlignment = TextAnchor.UpperLeft;
         headerLayout.spacing = 6f;
+
+        bannerImage = CreateBannerImage("Banner", header.transform);
+        bannerLayoutElement = bannerImage.GetComponent<LayoutElement>();
 
         titleText = CreateText("Title", header.transform, 36f, FontStyles.Bold);
         artistText = CreateText("Artist", header.transform, 20f, FontStyles.Normal);
@@ -126,6 +133,53 @@ public sealed class SongSelectLeftPanel : MonoBehaviour
         text.textWrappingMode = TextWrappingModes.NoWrap;
 
         return text;
+    }
+
+    Image CreateBannerImage(string name, Transform parent)
+    {
+        var go = new GameObject(name, typeof(RectTransform));
+        go.transform.SetParent(parent, false);
+
+        var image = go.AddComponent<Image>();
+        image.preserveAspect = true;
+
+        var layoutElement = go.AddComponent<LayoutElement>();
+        layoutElement.preferredWidth = bannerMaxSize.x;
+        layoutElement.preferredHeight = bannerMaxSize.y;
+
+        var fitter = go.AddComponent<AspectRatioFitter>();
+        fitter.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+
+        return image;
+    }
+
+    void UpdateBanner(SongMeta song)
+    {
+        if (bannerImage == null) return;
+
+        if (song.BannerTexture == null)
+        {
+            bannerImage.gameObject.SetActive(false);
+            return;
+        }
+
+        bannerImage.gameObject.SetActive(true);
+
+        var texture = song.BannerTexture;
+        var sprite = Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100f);
+        bannerImage.sprite = sprite;
+
+        if (bannerLayoutElement == null)
+            bannerLayoutElement = bannerImage.GetComponent<LayoutElement>();
+
+        if (bannerLayoutElement != null)
+        {
+            var maxWidth = bannerMaxSize.x <= 0f ? texture.width : bannerMaxSize.x;
+            var maxHeight = bannerMaxSize.y <= 0f ? texture.height : bannerMaxSize.y;
+            var scale = Mathf.Min(1f, maxWidth / texture.width, maxHeight / texture.height);
+            bannerLayoutElement.preferredWidth = texture.width * scale;
+            bannerLayoutElement.preferredHeight = texture.height * scale;
+        }
     }
 
     void UpdateDifficultyList(ChartDifficulty selectedDifficulty, Dictionary<ChartDifficulty, int> meters)
