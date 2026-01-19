@@ -67,15 +67,15 @@ public static class KeyBindingConfig
     {
         return action switch
         {
-            InputAction.MenuUp => new KeyBinding(Key.UpArrow, Key.J),
-            InputAction.MenuDown => new KeyBinding(Key.DownArrow, Key.F),
-            InputAction.MenuLeft => new KeyBinding(Key.LeftArrow, Key.D),
-            InputAction.MenuRight => new KeyBinding(Key.RightArrow, Key.K),
+            InputAction.MenuUp => new KeyBinding(Key.UpArrow, Key.None),
+            InputAction.MenuDown => new KeyBinding(Key.DownArrow, Key.None),
+            InputAction.MenuLeft => new KeyBinding(Key.LeftArrow, Key.None),
+            InputAction.MenuRight => new KeyBinding(Key.RightArrow, Key.None),
             InputAction.MenuConfirm => new KeyBinding(Key.Enter, Key.None),
-            InputAction.LaneLeft => new KeyBinding(Key.D, Key.LeftArrow),
-            InputAction.LaneDown => new KeyBinding(Key.F, Key.DownArrow),
-            InputAction.LaneUp => new KeyBinding(Key.J, Key.UpArrow),
-            InputAction.LaneRight => new KeyBinding(Key.K, Key.RightArrow),
+            InputAction.LaneLeft => new KeyBinding(Key.LeftArrow, Key.None),
+            InputAction.LaneDown => new KeyBinding(Key.DownArrow, Key.None),
+            InputAction.LaneUp => new KeyBinding(Key.UpArrow, Key.None),
+            InputAction.LaneRight => new KeyBinding(Key.RightArrow, Key.None),
             _ => new KeyBinding(Key.None, Key.None),
         };
     }
