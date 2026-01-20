@@ -72,5 +72,54 @@ Songs/
 
 ## License
 
-### Source Code
-All source code in this repository is released under the CC0 1.0 Universal license.
+⚠️ **Important: This repository contains files under multiple licenses.**
+
+### Source Code (Assets/_Project)
+
+All source code under the following directory is released under the
+**CC0 1.0 Universal license**:
+
+```
+Assets/_Project/
+```
+
+You are free to copy, modify, distribute, and use this code for any purpose,
+including commercial use, without asking permission.
+
+### Other Files
+
+Unless explicitly stated otherwise, files **outside `Assets/_Project/`**
+(including but not limited to):
+
+- Unity project settings
+- Configuration files
+- Third-party SDKs
+- External or placeholder assets
+
+are **not covered by the CC0 license**.
+
+Their usage is subject to their respective licenses or copyright holders.
+
+---
+
+## Disclaimer
+
+This project is provided **as-is**, without warranty of any kind.
+
+The author is not responsible for any issues arising from the use of this
+repository, including but not limited to licensing misunderstandings,
+hardware compatibility, or data loss.
+
+---
+
+## Purpose
+
+StepPlayer exists as a **sandbox for learning, experimentation, and iteration**.
+
+It prioritizes:
+- Understanding over completeness
+- Prototyping over polish
+- Flexibility over fixed design
+
+If you find something useful here, feel free to adapt it to your own work
+within the bounds of the applicable licenses.
