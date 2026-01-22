@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 public sealed class InputJudge
 {
@@ -54,7 +53,6 @@ public sealed class InputJudge
                 if (songTime <= n.TimeSec + judge.MissWindow) break;
 
                 counter.RecordMiss();
-                Debug.Log($"{lane}: Miss (late)");
                 list.RemoveFirst();
                 PlayBurstAndReturn(n, Judgement.Miss);
 
@@ -70,7 +68,6 @@ public sealed class InputJudge
         var list = active[lane];
         if (list.First == null)
         {
-            Debug.Log($"{lane}: 空振り");
             return;
         }
 

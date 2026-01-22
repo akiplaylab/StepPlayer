@@ -34,8 +34,6 @@ public sealed class Judge
         judgementText.Show(judgement);
         razerChroma?.TriggerJudgement(judgement, style.GetColor(judgement));
 
-        Debug.Log($"{lane}: {result} (dt={dt:0.000})");
-
         return evaluate;
     }
 }
