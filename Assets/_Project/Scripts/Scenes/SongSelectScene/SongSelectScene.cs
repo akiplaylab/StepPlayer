@@ -226,6 +226,7 @@ public sealed class SongSelectScene : MonoBehaviour
 
         SelectedSong.Value = song;
 
+        PlayConfirmVisual(index);
         PlayDecideSe();
 
         if (decideSe != null)
@@ -244,6 +245,13 @@ public sealed class SongSelectScene : MonoBehaviour
     {
         if (seSource != null && decideSe != null)
             seSource.PlayOneShot(decideSe, 2.0f);
+    }
+
+    void PlayConfirmVisual(int index)
+    {
+        if (index < 0 || index >= rows.Count) return;
+
+        rows[index].PlayConfirmVisual();
     }
 
     void PlayPreview()
