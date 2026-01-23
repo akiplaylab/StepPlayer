@@ -27,7 +27,7 @@ For development and testing purposes, this project can be verified
 
 You can use the following open-source emulator to simulate Chroma devices:
 
-https://github.com/WyvrnOfficial/ChromaEmulator
+[Chroma Emulator](https://github.com/WyvrnOfficial/ChromaEmulator)
 
 This emulator allows you to:
 
