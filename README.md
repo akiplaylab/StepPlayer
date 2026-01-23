@@ -1,90 +1,50 @@
 # StepPlayer
 
-## Overview
+This repository is a personal research project for studying rhythm game mechanics
+and real-time feedback systems.
 
-This repository is a **personal research project** focused on studying and recreating gameplay mechanics.
+This repository focuses on **technical exploration**, not recreating any
+commercial game or assets.
 
-The purpose of this project is **technical and educational research**, including:
-- rhythm game mechanics
-- timing and judgement systems
-- UI/UX experiments
-- audio synchronization techniques
+---
 
-This repository does **not aim to reproduce the original game**, assets, or commercial experience, but rather to explore rhythm-game design and implementation as an individual study project.
+## What this project explores
 
-## Hardware Integration (Razer Chroma)
+- Rhythm game timing & judgement systems
+- Audio synchronization
+- UI / feedback experiments
+- Optional hardware feedback via Razer Chroma
 
-This project includes **optional experimental integration** with
-Razer Chroma devices using the Razer Chroma SDK for Unity.
+---
 
-This integration provides **simple, event-driven lighting feedback**
-linked directly to gameplay judgements.
+## Razer Chroma (Optional)
 
-### Emulator Support (No Physical Device Required)
+This project includes **experimental integration** with Razer Chroma devices
+using the Unity SDK.
 
-For development and testing purposes, this project can be verified
-**without owning actual Razer Chroma hardware**.
+- Lighting reacts to judgement results only
+- Fully optional (game works without Chroma)
+- Static colors, event-based feedback
 
-You can use the following open-source emulator to simulate Chroma devices:
+### Emulator support
 
-[Chroma Emulator](https://github.com/WyvrnOfficial/ChromaEmulator)
+You can test Chroma output **without physical hardware** using:
 
-This emulator allows you to:
+https://github.com/WyvrnOfficial/ChromaEmulator
 
-* Run the project without physical Razer devices
-* Visually confirm Chroma output and color changes
-* Test judgement-driven lighting logic safely during development
+This is recommended for development, testing, and CI environments.
 
-Using an emulator is recommended for:
+---
 
-* Local development environments
-* CI / automated testing scenarios
-* Contributors who do not own Chroma hardware
+## Songs & Charts
 
-> Note: Emulator behavior may differ slightly from real hardware.
-> Final validation should be done on actual devices if precise hardware behavior is required.
+Song data is **not included** in this repository.
 
-### Current Implementation
-
-- Chroma SDK is initialized and shut down safely at runtime
-- Lighting is triggered **only on judgement events**
-- Judgement results are mapped to colors and applied immediately
-- Uses **static color output** (no animations or per-key effects)
-- Supports the following device categories:
-  - Keyboard
-  - Mouse
-  - Mousepad
-  - Headset
-  - Chroma Link devices
-
-Lighting control is implemented in a dedicated controller class and
-invoked from the judgement system.
-
-### Design Characteristics
-
-- Hardware integration is **optional**
-  - The game remains fully playable without Chroma devices
-- The Chroma SDK is accessed directly from Unity (C#)
-- Feedback is **event-based**, not timeline- or BPM-driven
-- Lighting is treated as **supplementary feedback**, not required for gameplay
-
-### Development Status
-
-- This feature is **experimental**
-- Behavior may change as the judgement and feedback systems evolve
-- Currently focused on correctness and stability rather than visual complexity
-
-## Songs and Charts
-
-Song data (audio files, images, and charts) are **not included** in this repository.
-
-All song-related files are managed externally via **Google Drive** to support flexible and asynchronous collaboration, especially for music and chart creation.
-
-### Google Drive (Source of Truth)
+All audio, images, and charts are managed via Google Drive:
 
 https://drive.google.com/drive/folders/1ss71t_okXAC2pxeLzp0iz-gmEiCKAEvz
 
-The folder structure in Google Drive matches the local project structure exactly:
+Expected structure:
 
 ```
 Songs/
@@ -94,57 +54,40 @@ Songs/
 <Song Name>.png
 ```
 
+---
+
 ## License
 
-⚠️ **Important: This repository contains files under multiple licenses.**
+⚠️ This repository uses **multiple licenses**.
 
-### Source Code (Assets/_Project)
+### Source code (CC0)
 
-All source code under the following directory is released under the
-**CC0 1.0 Universal license**:
+All files under:
 
 ```
 Assets/_Project/
 ```
 
-You are free to copy, modify, distribute, and use this code for any purpose,
-including commercial use, without asking permission.
+are released under **CC0 1.0 Universal**
+→ free to use, modify, and distribute without restriction.
 
-### Other Files
+### Other files
 
-Unless explicitly stated otherwise, files **outside `Assets/_Project/`**
-(including but not limited to):
-
-- Unity project settings
-- Configuration files
-- Third-party SDKs
-- External or placeholder assets
-
-are **not covered by the CC0 license**.
-
-Their usage is subject to their respective licenses or copyright holders.
+Everything outside `Assets/_Project/` is **not covered by CC0**
+and follows its own license or copyright.
 
 ---
 
 ## Disclaimer
 
-This project is provided **as-is**, without warranty of any kind.
-
-The author is not responsible for any issues arising from the use of this
-repository, including but not limited to licensing misunderstandings,
-hardware compatibility, or data loss.
+This project is provided **as-is**, without warranty.
 
 ---
 
 ## Purpose
 
-StepPlayer exists as a **sandbox for learning, experimentation, and iteration**.
+This repository is a **sandbox for learning and experimentation**.
 
-It prioritizes:
-
-* Understanding over completeness
-* Prototyping over polish
-* Flexibility over fixed design
-
-If you find something useful here, feel free to adapt it to your own work
-within the bounds of the applicable licenses.
+- Understanding > completeness
+- Prototyping > polish
+- Flexibility > fixed design
