@@ -25,6 +25,8 @@ linked directly to gameplay judgements.
 For development and testing purposes, this project can be verified
 **without owning actual Razer Chroma hardware**.
 
+![ChromaEmulator demo](https://github.com/WyvrnOfficial/ChromaEmulator/blob/master/chroma-emulator-v2.gif)
+
 You can use the following open-source emulator to simulate Chroma devices:
 
 https://github.com/WyvrnOfficial/ChromaEmulator
