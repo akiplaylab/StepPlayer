@@ -20,6 +20,30 @@ Razer Chroma devices using the Razer Chroma SDK for Unity.
 This integration provides **simple, event-driven lighting feedback**
 linked directly to gameplay judgements.
 
+### Emulator Support (No Physical Device Required)
+
+For development and testing purposes, this project can be verified
+**without owning actual Razer Chroma hardware**.
+
+You can use the following open-source emulator to simulate Chroma devices:
+
+https://github.com/WyvrnOfficial/ChromaEmulator
+
+This emulator allows you to:
+
+* Run the project without physical Razer devices
+* Visually confirm Chroma output and color changes
+* Test judgement-driven lighting logic safely during development
+
+Using an emulator is recommended for:
+
+* Local development environments
+* CI / automated testing scenarios
+* Contributors who do not own Chroma hardware
+
+> Note: Emulator behavior may differ slightly from real hardware.
+> Final validation should be done on actual devices if precise hardware behavior is required.
+
 ### Current Implementation
 
 - Chroma SDK is initialized and shut down safely at runtime
@@ -117,9 +141,10 @@ hardware compatibility, or data loss.
 StepPlayer exists as a **sandbox for learning, experimentation, and iteration**.
 
 It prioritizes:
-- Understanding over completeness
-- Prototyping over polish
-- Flexibility over fixed design
+
+* Understanding over completeness
+* Prototyping over polish
+* Flexibility over fixed design
 
 If you find something useful here, feel free to adapt it to your own work
 within the bounds of the applicable licenses.
