@@ -32,7 +32,7 @@ public sealed class Judge
         var judgement = evaluate.Judgement;
 
         judgementText.Show(judgement);
-        razerChroma?.TriggerJudgement(judgement, style.GetColor(judgement));
+        razerChroma?.TriggerAccent(judgement);
 
         return evaluate;
     }

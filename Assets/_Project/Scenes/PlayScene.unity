@@ -541,6 +541,7 @@ MonoBehaviour:
     style: {fileID: 11400000, guid: b118db814f47388438a2751bacf77473, type: 2}
   comboText: {fileID: 25574204}
   judgementStyle: {fileID: 0}
+  razerChroma: {fileID: 1578084507}
   endFadeOutSec: 0.4
   endWhenChartFinished: 1
   endWhenChartFinishedDelaySec: 0.8
