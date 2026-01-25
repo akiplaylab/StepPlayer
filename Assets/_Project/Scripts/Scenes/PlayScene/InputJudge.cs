@@ -122,5 +122,4 @@ public sealed class InputJudge
 
         note.PlayHitBurst(style.GetColor(judgement), () => notePool.Return(note));
     }
-
 }
