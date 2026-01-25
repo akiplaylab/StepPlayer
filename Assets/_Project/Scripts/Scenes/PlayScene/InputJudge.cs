@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 public sealed class InputJudge
@@ -78,7 +78,7 @@ public sealed class InputJudge
         var note = list.First.Value;
         var dt = Math.Abs(note.TimeSec - songTime);
 
-        var judgement = judge.JudgeHit(lane, dt);
+        var judgement = judge.JudgeHit(dt);
         getFx(lane).Play(judgement.Intensity);
 
         if (judgement.ShouldConsumeNote)

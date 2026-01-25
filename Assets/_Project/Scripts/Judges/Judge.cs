@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 
 [Serializable]
@@ -19,7 +19,7 @@ public sealed class Judge
     public float MissWindow => miss;
     public JudgementStyle Style => style;
 
-    public JudgementOutcome JudgeHit(Lane lane, double dt)
+    public JudgementOutcome JudgeHit(double dt)
     {
         var result =
             dt <= marvelous ? "Marvelous" :
