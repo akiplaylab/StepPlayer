@@ -38,21 +38,11 @@ This is recommended for development, testing, and CI environments.
 
 ## Songs & Charts
 
-Song data is **not included** in this repository.
+This repository includes **one bundled sample song** for immediate playback.
 
-All audio, images, and charts are managed via Google Drive:
-
-https://drive.google.com/drive/folders/1ss71t_okXAC2pxeLzp0iz-gmEiCKAEvz
-
-Expected structure:
-
-```
-Songs/
-<Song Name>/
-<Song Name>.sm
-<Song Name>.ogg (or .mp3)
-<Song Name>.png
-```
+- **Dance Mood**
+  - Included directly in the repository
+  - No external downloads are required
 
 ---
 
@@ -71,10 +61,12 @@ Assets/_Project/
 are released under **CC0 1.0 Universal**
 → free to use, modify, and distribute without restriction.
 
-### Other files
+### Music Assets
 
-Everything outside `Assets/_Project/` is **not covered by CC0**
-and follows its own license or copyright.
+- **Dance Mood**
+  - Artist: SoulProdMusic
+  - Source: Pixabay
+  - License: Pixabay Content License
 
 ---
 

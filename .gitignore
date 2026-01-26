@@ -98,10 +98,12 @@ InitTestScene*.unity*
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 
-# StepPlayer songs (managed via Google Drive)
-Assets/StreamingAssets/Songs/*
+# Songs: ignore everything by default
+Assets/StreamingAssets/Songs/**
 
-# Keep the folder and documentation in Git
-!Assets/StreamingAssets/Songs/
-!Assets/StreamingAssets/Songs/README.md
-!Assets/StreamingAssets/Songs/README.md.meta
+# Allow Dance Mood directory
+!Assets/StreamingAssets/Songs/Dance Mood/
+!Assets/StreamingAssets/Songs/Dance Mood/**
+
+# (optional) Unity meta files are still needed
+!Assets/StreamingAssets/Songs/Dance Mood/**/*.meta
