@@ -7,7 +7,6 @@ public sealed class InputJudge
     readonly ComboTextPresenter comboText;
     readonly JudgementStyle judgementStyle;
     readonly JudgementCounter counter;
-    readonly RazerChromaController razerChroma;
     readonly NoteViewPool notePool;
     readonly Dictionary<Lane, LinkedList<NoteView>> active;
     readonly Func<Lane, ReceptorHitEffect> getFx;
@@ -17,7 +16,6 @@ public sealed class InputJudge
         ComboTextPresenter comboText,
         JudgementStyle judgementStyle,
         JudgementCounter counter,
-        RazerChromaController razerChroma,
         NoteViewPool notePool,
         Dictionary<Lane, LinkedList<NoteView>> active,
         Func<Lane, ReceptorHitEffect> getFx)
@@ -26,7 +24,6 @@ public sealed class InputJudge
         this.comboText = comboText;
         this.judgementStyle = judgementStyle;
         this.counter = counter;
-        this.razerChroma = razerChroma;
         this.notePool = notePool;
         this.active = active;
         this.getFx = getFx;
@@ -56,7 +53,6 @@ public sealed class InputJudge
                 if (songTime <= n.TimeSec + judge.MissWindow) break;
 
                 counter.RecordMiss();
-                razerChroma?.OnComboBreak();
                 list.RemoveFirst();
                 PlayBurstAndReturn(n, Judgement.Miss);
 
@@ -84,7 +80,6 @@ public sealed class InputJudge
         if (judgement.ShouldConsumeNote)
         {
             counter.Record(judgement.Judgement);
-            UpdateComboStage(judgement.Judgement);
             list.RemoveFirst();
             PlayBurstAndReturn(note, judgement.Judgement);
             UpdateComboDisplay();
@@ -94,21 +89,6 @@ public sealed class InputJudge
     void UpdateComboDisplay()
     {
         comboText?.Show(counter.CurrentCombo);
-    }
-
-    void UpdateComboStage(Judgement judgement)
-    {
-        if (judgement == Judgement.None)
-            return;
-
-        if (judgement <= Judgement.Good)
-        {
-            razerChroma?.OnComboChanged(counter.CurrentCombo);
-        }
-        else
-        {
-            razerChroma?.OnComboBreak();
-        }
     }
 
     void PlayBurstAndReturn(NoteView note, Judgement judgement)

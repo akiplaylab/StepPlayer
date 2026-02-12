@@ -38,7 +38,6 @@ public sealed class PlayScene : MonoBehaviour
     [SerializeField] Judge judge;
     [SerializeField] ComboTextPresenter comboText;
     [SerializeField] JudgementStyle judgementStyle;
-    [SerializeField] RazerChromaController razerChroma;
 
     [SerializeField] float endFadeOutSec = 0.4f;
 
@@ -118,7 +117,7 @@ public sealed class PlayScene : MonoBehaviour
         audioSource.PlayScheduled(dspStartTime);
 
         noteSpawner = new NoteSpawner(chart, notePool, spawnY, judgeLineY, travelTimeSec, laneXs, active);
-        inputJudge = new InputJudge(judge, comboText, judgementStyle, counter, razerChroma, notePool, active, GetFx);
+        inputJudge = new InputJudge(judge, comboText, judgementStyle, counter, notePool, active, GetFx);
         resultFlow = new ResultFlow(endWhenChartFinished, endWhenChartFinishedDelaySec);
 
         Debug.Log($"Loaded song: {song.DisplayTitle}, notes: {chart.Notes.Count}, offset: {chart.OffsetSec:0.###}, bpm: {chart.Bpm:0.###}, outputLatency: {outputLatencySec:0.###}");
