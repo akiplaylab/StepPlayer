@@ -38,35 +38,14 @@ This is recommended for development, testing, and CI environments.
 
 ## Songs & Charts
 
-This repository includes **one bundled sample song** for immediate playback.
-
-- **Dance Mood**
-  - Included directly in the repository
-  - No external downloads are required
-
----
-
-## License
-
-⚠️ This repository uses **multiple licenses**.
-
-### Source code (CC0)
-
-All files under:
-
-```
-Assets/_Project/
-```
-
-are released under **CC0 1.0 Universal**
-→ free to use, modify, and distribute without restriction.
-
-### Music Assets
+This repository includes one bundled sample song:
 
 - **Dance Mood**
   - Artist: SoulProdMusic
   - Source: Pixabay
   - License: Pixabay Content License
+
+No additional downloads are required.
 
 ---
 
@@ -76,10 +55,9 @@ This project is provided **as-is**, without warranty.
 
 ---
 
-## Purpose
+## License
 
-This repository is a **sandbox for learning and experimentation**.
+Source code is licensed under the MIT License.
 
-- Understanding > completeness
-- Prototyping > polish
-- Flexibility > fixed design
+The bundled sample song "Dance Mood" is distributed under the
+Pixabay Content License.
