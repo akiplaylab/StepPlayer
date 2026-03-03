@@ -6,6 +6,12 @@ and real-time feedback systems.
 This repository focuses on **technical exploration**, not recreating any
 commercial game or assets.
 
+## Demo Video
+
+Click the image below to watch the demo.
+
+[![StepPlayer Demo](https://img.youtube.com/vi/wqu13HNFySE/maxresdefault.jpg)](https://www.youtube.com/watch?v=wqu13HNFySE)
+
 ---
 
 ## What this project explores
